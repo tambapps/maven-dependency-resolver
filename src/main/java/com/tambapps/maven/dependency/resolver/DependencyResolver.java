@@ -17,24 +17,25 @@ public final class DependencyResolver {
 
   private DependencyResolver() {}
 
-  public static List<Dependency> resolve(MavenRepository repository, String dependencyString)
+  public static List<BaseArtifact> resolve(MavenRepository repository, String dependencyString)
       throws IOException {
     String[] fields = extractFields(dependencyString);
     return resolve(repository, fields[0], fields[1], fields[2]);
   }
 
-  public static List<Dependency> resolve(MavenRepository repository, Artifact artifact)
+  public static List<BaseArtifact> resolve(MavenRepository repository, Artifact artifact)
       throws IOException {
     return resolve(repository, artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
   }
 
-  public static List<Dependency> resolve(MavenRepository repository, String groupId, String artifactId, String version)
+  public static List<BaseArtifact> resolve(MavenRepository repository, String groupId, String artifactId, String version)
       throws IOException {
-    // TODO call dependencies.add() SOMEWHERE
-    List<Dependency> dependencies = new ArrayList<>();
+    List<BaseArtifact> dependencies = new ArrayList<>();
     Artifact artifact = repository.retrieveArtifact(groupId, artifactId, version);
     Set<BaseArtifact> traversedArtifacts = new HashSet<>();
-    traversedArtifacts.add(artifact);
+    BaseArtifact baseArtifact = artifact.toBase();
+    dependencies.add(baseArtifact);
+    traversedArtifacts.add(baseArtifact);
     for (Dependency dependency : artifact.getDependencies()) {
       if (dependency.isOptional() || dependency.getScope() != Scope.COMPILE) {
         continue;
@@ -45,13 +46,16 @@ public final class DependencyResolver {
   }
 
   private static void resolveRec(MavenRepository repository,
-      Set<BaseArtifact> traversedArtifacts, List<Dependency> dependencies, Dependency artifactDependency)
+      Set<BaseArtifact> traversedArtifacts, List<BaseArtifact> dependencies, Dependency artifactDependency)
       throws IOException {
     if (traversedArtifacts.contains(artifactDependency)) {
       return;
     }
     Artifact artifact = repository.retrieveArtifact(artifactDependency.getGroupId(),
         artifactDependency.getArtifactId(), artifactDependency.getVersion());
+    BaseArtifact baseArtifact = artifact.toBase();
+    dependencies.add(baseArtifact);
+    traversedArtifacts.add(baseArtifact);
     for (Dependency dependency : artifact.getDependencies()) {
       if (dependency.isOptional() || dependency.getScope() != Scope.COMPILE) {
         continue;
