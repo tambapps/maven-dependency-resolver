@@ -1,15 +1,12 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
 import com.tambapps.maven.dependency.resolver.data.Artifact;
-import com.tambapps.maven.dependency.resolver.data.Dependency;
 import com.tambapps.maven.dependency.resolver.exceptions.ArtifactNotFoundException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
 
 public class LocalMavenRepository extends AbstractMavenRepository {
 
@@ -37,10 +34,15 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     return new FileInputStream(file);
   }
 
-  /*
   @Override
-  protected InputStream jarStream(String groupId, String artifactId, String version) throws IOException {
-    return new FileInputStream(new File(repoRoot, getJarKey(groupId, artifactId, version)));
+  public Artifact retrieveArtifact(String groupId, String artifactId, String version)
+      throws IOException {
+    File file = new File(repoRoot, getPomKey(groupId, artifactId, version));
+    if (!file.exists()) {
+      throw new ArtifactNotFoundException();
+    }
+    try (InputStream inputStream = new FileInputStream(file)) {
+      return toArtifact(inputStream);
+    }
   }
- */
 }

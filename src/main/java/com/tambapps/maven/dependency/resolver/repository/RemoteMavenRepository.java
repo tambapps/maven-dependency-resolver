@@ -4,11 +4,9 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.tambapps.maven.dependency.resolver.data.Artifact;
-import com.tambapps.maven.dependency.resolver.data.Dependency;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
 
 public class RemoteMavenRepository extends AbstractMavenRepository {
 
@@ -27,7 +25,7 @@ public class RemoteMavenRepository extends AbstractMavenRepository {
 
   @Override
   public boolean exists(String groupId, String artifactId, String version) throws IOException  {
-    Request request = request(groupId, artifactId, version).get().build();
+    Request request = jarRequest(groupId, artifactId, version).get().build();
     Response response = client.newCall(request).execute();
     switch (response.code()) {
       case 200:
@@ -39,18 +37,35 @@ public class RemoteMavenRepository extends AbstractMavenRepository {
     }
   }
 
-  private Request.Builder request(String groupId, String artifactId, String version) {
+  private Request.Builder jarRequest(String groupId, String artifactId, String version) {
     return new Request.Builder().url(repoUrl + getJarKey(groupId, artifactId, version));
+  }
+
+  private Request.Builder pomRequest(String groupId, String artifactId, String version) {
+    return new Request.Builder().url(repoUrl + getPomKey(groupId, artifactId, version));
   }
 
   @Override
   public InputStream retrieveArtifactJar(String groupId, String artifactId, String version)
       throws IOException {
-    Request request = request(groupId, artifactId, version).get().build();
+    Request request = jarRequest(groupId, artifactId, version).get().build();
     Response response = client.newCall(request).execute();
     if (!response.isSuccessful()) {
       throw new IOException(String.format("Requesting artifact %s:%s:%s failed: %s",groupId, artifactId, version, response.message()));
     }
     return response.body().byteStream();
+  }
+
+  @Override
+  public Artifact retrieveArtifact(String groupId, String artifactId, String version)
+      throws IOException {
+    Request request = jarRequest(groupId, artifactId, version).get().build();
+    Response response = client.newCall(request).execute();
+    if (!response.isSuccessful()) {
+      throw new IOException(String.format("Requesting artifact %s:%s:%s failed: %s",groupId, artifactId, version, response.message()));
+    }
+    try (InputStream inputStream = response.body().byteStream()) {
+      return toArtifact(inputStream);
+    }
   }
 }
