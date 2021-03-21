@@ -57,6 +57,17 @@ public class RemoteMavenRepository extends AbstractMavenRepository {
   }
 
   @Override
+  public InputStream retrieveArtifactPom(String groupId, String artifactId, String version)
+      throws IOException {
+    Request request = pomRequest(groupId, artifactId, version).get().build();
+    Response response = client.newCall(request).execute();
+    if (!response.isSuccessful()) {
+      throw new IOException(String.format("Requesting artifact %s:%s:%s failed: %s",groupId, artifactId, version, response.message()));
+    }
+    return response.body().byteStream();
+  }
+
+  @Override
   public Artifact retrieveArtifact(String groupId, String artifactId, String version)
       throws IOException {
     Request request = jarRequest(groupId, artifactId, version).get().build();

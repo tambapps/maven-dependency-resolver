@@ -15,6 +15,10 @@ public interface MavenRepository {
 
   InputStream retrieveArtifactJar(String groupId, String artifactId, String version) throws IOException;
 
+  InputStream retrieveArtifactPom(String dependencyString) throws IOException;
+
+  InputStream retrieveArtifactPom(String groupId, String artifactId, String version) throws IOException;
+
   Artifact retrieveArtifact(String dependencyString) throws IOException;
 
   Artifact retrieveArtifact(String groupId, String artifactId, String version) throws IOException;

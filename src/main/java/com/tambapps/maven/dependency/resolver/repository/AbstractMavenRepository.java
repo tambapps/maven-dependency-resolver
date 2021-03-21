@@ -32,6 +32,12 @@ public abstract class AbstractMavenRepository implements MavenRepository {
   }
 
   @Override
+  public InputStream retrieveArtifactPom(String dependencyString) throws IOException {
+    String[] fields = extractFields(dependencyString);
+    return retrieveArtifactPom(fields[0], fields[1], fields[2]);
+  }
+
+  @Override
   public Artifact retrieveArtifact(String dependencyString) throws IOException {
     String[] fields = extractFields(dependencyString);
     return retrieveArtifact(fields[0], fields[1], fields[2]);
@@ -118,7 +124,7 @@ public abstract class AbstractMavenRepository implements MavenRepository {
         artifactId + "-" + version + ".pom";
   }
 
-  private String[] extractFields(String dependencyString) {
+  protected String[] extractFields(String dependencyString) {
     String[] fields = dependencyString.split(":");
     if (fields.length != 3) {
       throw new IllegalArgumentException("Argument should be in pattern artifactId:groupId:version");
