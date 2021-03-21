@@ -1,12 +1,12 @@
-package com.tambapps.maven.dependency.resolver;
+package com.tambapps.maven.dependency.resolver.repository;
 
 import static org.junit.Assert.assertTrue;
 
-import com.tambapps.maven.dependency.resolver.repository.LocalRepository;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 public class LocalRepositoryTest {
 
@@ -14,7 +14,7 @@ public class LocalRepositoryTest {
 
   @Test
   @Ignore
-  public void existsTest() {
+  public void existsTest() throws IOException {
     assertTrue(repository.exists("com.google.code.gson", "gson", "2.2.4"));
     assertTrue(repository.exists("com.google.code.gson:gson:2.2.4"));
   }

@@ -14,7 +14,7 @@ public class LocalRepository extends AbstractRepository {
   }
 
   @Override
-  public boolean exists(String artifactId, String groupId, String version) {
-    return new File(repoRoot, getJarKey(artifactId, groupId, version)).exists();
+  public boolean exists(String groupId, String artifactId, String version) {
+    return new File(repoRoot, getJarKey(groupId, artifactId, version)).exists();
   }
 }

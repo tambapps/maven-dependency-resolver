@@ -1,13 +1,15 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
+import java.io.IOException;
+
 public interface Repository {
 
-  default boolean exists(String dependencyString) {
+  default boolean exists(String dependencyString) throws IOException {
     String[] fields = extractFields(dependencyString);
     return exists(fields[0], fields[1], fields[2]);
   }
 
-  boolean exists(String artifactId, String groupId, String version);
+  boolean exists(String groupId, String artifactId, String version) throws IOException;
 
 
   default String[] extractFields(String dependencyString) {
