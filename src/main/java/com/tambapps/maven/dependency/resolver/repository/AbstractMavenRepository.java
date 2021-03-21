@@ -1,6 +1,6 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
-public abstract class AbstractRepository implements Repository {
+public abstract class AbstractMavenRepository implements MavenRepository {
 
   protected String getKey(String groupId, String artifactId, String version) {
     return groupId.replaceAll("\\.", "/") + "/" +

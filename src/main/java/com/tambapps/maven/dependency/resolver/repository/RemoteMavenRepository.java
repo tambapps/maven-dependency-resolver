@@ -6,18 +6,18 @@ import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 
-public class RemoteRepository extends AbstractRepository {
+public class RemoteMavenRepository extends AbstractMavenRepository {
 
   public static final String MAVEN_REPO_URL = "https://repo1.maven.org/maven2";
   private final OkHttpClient client;
   private final String repoUrl;
 
-  public RemoteRepository(OkHttpClient client, String repoUrl) {
+  public RemoteMavenRepository(OkHttpClient client, String repoUrl) {
     this.client = client;
     this.repoUrl = repoUrl.endsWith("/") ? repoUrl : repoUrl + "/";
   }
 
-  public RemoteRepository(String repoUrl) {
+  public RemoteMavenRepository(String repoUrl) {
     this(new OkHttpClient(), repoUrl);
   }
 

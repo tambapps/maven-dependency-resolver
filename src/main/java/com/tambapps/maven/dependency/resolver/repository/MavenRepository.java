@@ -2,7 +2,7 @@ package com.tambapps.maven.dependency.resolver.repository;
 
 import java.io.IOException;
 
-public interface Repository {
+public interface MavenRepository {
 
   default boolean exists(String dependencyString) throws IOException {
     String[] fields = extractFields(dependencyString);

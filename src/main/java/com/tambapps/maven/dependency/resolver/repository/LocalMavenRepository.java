@@ -2,13 +2,13 @@ package com.tambapps.maven.dependency.resolver.repository;
 
 import java.io.File;
 
-public class LocalRepository extends AbstractRepository {
+public class LocalMavenRepository extends AbstractMavenRepository {
 
   // may be useless
   private final File root;
   private final File repoRoot;
 
-  public LocalRepository(File root) {
+  public LocalMavenRepository(File root) {
     this.root = root;
     repoRoot = new File(root, "repository");
   }

@@ -5,12 +5,11 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 
-public class LocalRepositoryTest {
+public class RemoteMavenRepositoryTest {
 
-  private final LocalRepository repository = new LocalRepository(new File(new File(System.getProperty("user.home")), ".m2"));
+  private final RemoteMavenRepository repository = new RemoteMavenRepository(RemoteMavenRepository.MAVEN_REPO_URL);
 
   @Test
   @Ignore
