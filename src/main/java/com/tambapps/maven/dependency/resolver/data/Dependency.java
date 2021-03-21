@@ -12,4 +12,10 @@ public class Dependency {
 
   Scope scope;
   boolean optional;
+
+  public boolean matches(Dependency dependency) {
+    return getGroupId().equals(dependency.getGroupId()) &&
+        getArtifactId().equals(dependency.getArtifactId()) &&
+        getVersion().equals(dependency.getVersion());
+  }
 }

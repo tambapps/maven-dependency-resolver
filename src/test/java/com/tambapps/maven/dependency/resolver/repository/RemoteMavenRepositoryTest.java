@@ -43,5 +43,13 @@ public class RemoteMavenRepositoryTest {
     assertEquals("junit", junitDependency.getGroupId());
     assertEquals("junit", junitDependency.getArtifactId());
     assertEquals("3.8.2", junitDependency.getVersion());
+
+    Artifact parentArtifact = artifact.getParent();
+    assertNotNull(parentArtifact);
+    assertEquals("org.sonatype.oss", parentArtifact.getGroupId());
+    assertEquals("oss-parent", parentArtifact.getArtifactId());
+    assertEquals("7", parentArtifact.getVersion());
+    assertTrue(parentArtifact.getDependencies().isEmpty());
+    assertTrue(parentArtifact.getDependencyManagement().isEmpty());
   }
 }

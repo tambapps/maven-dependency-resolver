@@ -41,18 +41,7 @@ public abstract class AbstractMavenRepository implements MavenRepository {
     Document document = parse(pomStream);
     document.getElementsByTagName("dependencies");
     Artifact artifact = new Artifact();
-    // TODO handle case where pom has a parent and groupId is defined in parent
-    //  only fetch parent when needed (meaning when a version of a dependency isn't specified
 
-    // TODO sometimes groupId is only defined in parent:
-    /*
-    <parent>
-    <groupId>com.tambapps.gmage</groupId>
-    <artifactId>gmage</artifactId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
-  <artifactId>gmage-desktop</artifactId>
-     */
     String groupId = getPropertyOrNull(document, "groupId");
     Element parentNode = getElementOrNull(document, "parent");
 
@@ -65,6 +54,15 @@ public abstract class AbstractMavenRepository implements MavenRepository {
     artifact.setVersion(document.getElementsByTagName("version").item(0).getTextContent());
     artifact.setDependencies(extractDependencies(document.getElementsByTagName("dependencies")));
     artifact.setDependencyManagement(extractDependencies(document.getElementsByTagName("dependencyManagement")));
+
+    if (parentNode != null) {
+      // we should always fetch parent because if it declared dependencies (not dependenciesManagment)
+      // they should always be fetched for the child pom
+      String parentGroupId = getPropertyOrNull(parentNode, "groupId");
+      String parentArtifactId = getPropertyOrNull(parentNode, "artifactId");
+      String parentVersion = getPropertyOrNull(parentNode, "version");
+      artifact.setParent(retrieveArtifact(parentGroupId, parentArtifactId, parentVersion));
+    }
     return artifact;
   }
 
