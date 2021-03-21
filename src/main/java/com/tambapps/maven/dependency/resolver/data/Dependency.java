@@ -1,14 +1,11 @@
 package com.tambapps.maven.dependency.resolver.data;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@Builder
-public class Dependency {
-  String groupId;
-  String artifactId;
-  String version;
+@Getter
+@Setter
+public class Dependency extends BaseArtifact {
 
   Scope scope;
   boolean optional;
@@ -17,5 +14,15 @@ public class Dependency {
     return getGroupId().equals(dependency.getGroupId()) &&
         getArtifactId().equals(dependency.getArtifactId()) &&
         getVersion().equals(dependency.getVersion());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
   }
 }

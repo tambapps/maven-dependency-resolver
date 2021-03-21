@@ -91,11 +91,11 @@ public abstract class AbstractMavenRepository implements MavenRepository {
 
     for (int i = 0; i < dependencyNodes.getLength(); i++) {
       Element node = (Element) dependencyNodes.item(i);
-      dependencies.add(Dependency.builder()
-          .groupId(node.getElementsByTagName("groupId").item(0).getTextContent())
-          .artifactId(node.getElementsByTagName("artifactId").item(0).getTextContent())
-          .version(getPropertyOrNull(node, "version"))
-          .build());
+      Dependency dependency = new Dependency();
+      dependency.setGroupId(getPropertyOrNull(node, "groupId"));
+      dependency.setArtifactId(getPropertyOrNull(node, "artifactId"));
+      dependency.setVersion(getPropertyOrNull(node, "version"));
+      dependencies.add(dependency);
     }
     return dependencies;
   }

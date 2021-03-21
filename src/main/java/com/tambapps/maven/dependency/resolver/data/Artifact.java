@@ -1,21 +1,19 @@
 package com.tambapps.maven.dependency.resolver.data;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Data
-public class Artifact {
+@Getter
+@Setter
+public class Artifact extends BaseArtifact {
   Artifact parent;
-  String groupId;
-  String artifactId;
-  String version;
 
-  // TODO parent
-  // TODO dependency managment
   List<Dependency> dependencies;
   List<Dependency> dependencyManagement;
 
@@ -48,5 +46,15 @@ public class Artifact {
       }
       parentArtifact = parentArtifact.getParent();
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+   return super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
   }
 }
