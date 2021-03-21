@@ -44,13 +44,13 @@ public abstract class AbstractMavenRepository implements MavenRepository {
     artifact.setGroupId(document.getElementsByTagName("groupId").item(0).getTextContent());
     artifact.setArtifactId(document.getElementsByTagName("artifactId").item(0).getTextContent());
     artifact.setVersion(document.getElementsByTagName("version").item(0).getTextContent());
-    artifact.setDependencies(extractDependencies(document));
+    artifact.setDependencies(extractDependencies(document.getElementsByTagName("dependencies")));
+    artifact.setDependencyManagement(extractDependencies(document.getElementsByTagName("dependencyManagement")));
     return artifact;
   }
 
-  private List<Dependency> extractDependencies(Document document) {
+  private List<Dependency> extractDependencies(NodeList dependencyNodes) {
     List<Dependency> dependencies = new ArrayList<>();
-    NodeList dependencyNodes = document.getElementsByTagName("dependencies");
 
     for (int i = 0; i < dependencyNodes.getLength(); i++) {
       Element node = (Element) dependencyNodes.item(i);
@@ -58,7 +58,8 @@ public abstract class AbstractMavenRepository implements MavenRepository {
       dependencies.add(Dependency.builder()
           .groupId(node.getElementsByTagName("groupId").item(0).getTextContent())
           .artifactId(node.getElementsByTagName("artifactId").item(0).getTextContent())
-          .version(versionNodes.getLength() == 0 ? null : node.getElementsByTagName("version").item(0).getTextContent())
+          .version(versionNodes.getLength() == 0 ? null : node.getElementsByTagName("version")
+              .item(0).getTextContent())
           .build());
     }
     return dependencies;
