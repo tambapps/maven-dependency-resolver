@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Value
 public class DependencyResolvingResult {
-  List<Artifact> artifacts;
+  List<Artifact> fetchedArtifacts;
   // map groupId:artifactId -> versions
   Map<String, List<Artifact>> artifactVersionsMap;
 
