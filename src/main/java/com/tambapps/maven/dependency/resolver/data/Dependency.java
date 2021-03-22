@@ -12,8 +12,7 @@ public class Dependency extends BaseArtifact {
 
   public boolean matches(Dependency dependency) {
     return getGroupId().equals(dependency.getGroupId()) &&
-        getArtifactId().equals(dependency.getArtifactId()) &&
-        getVersion().equals(dependency.getVersion());
+        getArtifactId().equals(dependency.getArtifactId());
   }
 
   @Override

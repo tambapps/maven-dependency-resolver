@@ -5,13 +5,13 @@ import lombok.Setter;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
 public class Artifact extends BaseArtifact {
+  // TODO parse and resolve properties
   Artifact parent;
 
   List<Dependency> dependencies;
