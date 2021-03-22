@@ -18,4 +18,13 @@ public class DependencyResolverTest {
             "org.springframework.boot", "spring-boot-starter-web", "2.4.2");
     System.out.println(resolve);
   }
+
+  // example with parent pom and dependency versions defined in parent pom
+  @Test
+  public void fetchGuava() throws IOException {
+    List<BaseArtifact> resolve =
+        resolve(new RemoteMavenRepository(RemoteMavenRepository.MAVEN_REPO_URL),
+            "com.google.guava", "guava", "30.1.1-jre");
+    System.out.println(resolve);
+  }
 }
