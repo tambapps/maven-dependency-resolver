@@ -1,5 +1,6 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
+import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
 import com.tambapps.maven.dependency.resolver.data.Scope;
@@ -17,8 +18,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class AbstractMavenRepository implements MavenRepository {
+
+  private static final Pattern PROPERTY_REFERENCE_PATTERN = Pattern.compile("\\$\\{([^\\s{}]*)}");
 
   private final DocumentBuilderFactory dbFactory;
 
@@ -86,7 +91,25 @@ public abstract class AbstractMavenRepository implements MavenRepository {
       String parentVersion = getPropertyOrNull(parentNode, "version");
       pomArtifact.setParent(retrieveArtifact(parentGroupId, parentArtifactId, parentVersion));
     }
+    resolveProperties(pomArtifact);
     return pomArtifact;
+  }
+
+  private void resolveProperties(PomArtifact pomArtifact) {
+    resolveProperties(pomArtifact, pomArtifact);
+    pomArtifact.getProperties().put("project.version", pomArtifact.getVersion());
+    pomArtifact.getDependencies().forEach(dep -> resolveProperties(pomArtifact, dep));
+  }
+
+  private void resolveProperties(PomArtifact pomArtifact, Artifact artifact) {
+    Matcher matcher = PROPERTY_REFERENCE_PATTERN.matcher(artifact.getVersion());
+    if (matcher.find()) {
+      String propertyName = matcher.group(1);
+      String propertyValue = pomArtifact.getProperty(propertyName);
+      if (propertyValue != null) {
+        artifact.setVersion(propertyValue);
+      }
+    }
   }
 
   private Element getElementOrNull(Document document, String tagName) {

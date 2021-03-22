@@ -58,4 +58,15 @@ public class PomArtifact extends Artifact {
   public int hashCode() {
     return super.hashCode();
   }
+
+  public String getProperty(String propertyName) {
+    String propertyValue = properties.get(propertyName);
+    if (propertyValue != null) {
+      return propertyValue;
+    } else if (parent != null) {
+      return parent.getProperty(propertyName);
+    } else {
+      return null;
+    }
+  }
 }
