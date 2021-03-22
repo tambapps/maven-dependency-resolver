@@ -31,8 +31,7 @@ public final class DependencyResolver {
   public static List<BaseArtifact> resolve(MavenRepository repository, String groupId, String artifactId, String version)
       throws IOException {
     List<BaseArtifact> dependencies = new ArrayList<>();
-    Artifact artifact = repository.retrieveArtifact(groupId, artifactId, version);
-    resolveRec(repository, new HashSet<>(), dependencies, artifact);
+    resolveRec(repository, new HashSet<>(), dependencies, new BaseArtifact(groupId, artifactId, version));
     return dependencies;
   }
 
@@ -47,6 +46,7 @@ public final class DependencyResolver {
     BaseArtifact baseArtifact = artifact.toBase();
     dependencies.add(baseArtifact);
     traversedArtifacts.add(baseArtifact);
+    // TODO also fetch parent dependencies if any
     for (Dependency dependency : artifact.getDependencies()) {
       if (dependency.isOptional() || dependency.getScope() != Scope.COMPILE) {
         continue;
