@@ -2,6 +2,7 @@ package com.tambapps.maven.dependency.resolver.repository;
 
 import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
+import com.tambapps.maven.dependency.resolver.data.Scope;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -86,6 +87,11 @@ public abstract class AbstractMavenRepository implements MavenRepository {
     NodeList nodes = document.getElementsByTagName(tagName);
     return nodes.getLength() == 0 ? null :  nodes.item(0).getTextContent();
   }
+
+  private String getPropertyOrDefault(Element document, String tagName, String defaultValue) {
+    NodeList nodes = document.getElementsByTagName(tagName);
+    return nodes.getLength() == 0 ? defaultValue :  nodes.item(0).getTextContent();
+  }
   private List<Dependency> extractDependencies(NodeList dependencyNodes) {
     List<Dependency> dependencies = new ArrayList<>();
 
@@ -95,6 +101,8 @@ public abstract class AbstractMavenRepository implements MavenRepository {
       dependency.setGroupId(getPropertyOrNull(node, "groupId"));
       dependency.setArtifactId(getPropertyOrNull(node, "artifactId"));
       dependency.setVersion(getPropertyOrNull(node, "version"));
+      dependency.setScope(Scope.valueOf(getPropertyOrDefault(node, "scope", "compile").toUpperCase()));
+      dependency.setOptional(getPropertyOrDefault(node, "optional", "false").equals("true"));
       dependencies.add(dependency);
     }
     return dependencies;
