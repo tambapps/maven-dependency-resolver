@@ -1,6 +1,7 @@
 package com.tambapps.maven.dependency.resolver;
 
 
+import com.tambapps.maven.dependency.resolver.data.DependencyResolvingResult;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
@@ -9,40 +10,47 @@ import com.tambapps.maven.dependency.resolver.repository.MavenRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class DependencyResolver {
 
   private DependencyResolver() {}
 
-  public static List<Artifact> resolve(MavenRepository repository, String dependencyString)
+  public static DependencyResolvingResult resolve(MavenRepository repository, String dependencyString)
       throws IOException {
     String[] fields = extractFields(dependencyString);
     return resolve(repository, fields[0], fields[1], fields[2]);
   }
 
-  public static List<Artifact> resolve(MavenRepository repository, PomArtifact pomArtifact)
+  public static DependencyResolvingResult resolve(MavenRepository repository, PomArtifact pomArtifact)
       throws IOException {
     return resolve(repository, pomArtifact.getGroupId(), pomArtifact.getArtifactId(), pomArtifact.getVersion());
   }
 
-  public static List<Artifact> resolve(MavenRepository repository, String groupId, String artifactId, String version)
+  public static DependencyResolvingResult resolve(MavenRepository repository, String groupId, String artifactId, String version)
       throws IOException {
-    List<Artifact> dependencies = new ArrayList<>();
-    resolveRec(repository, new HashSet<>(), dependencies, new Artifact(groupId, artifactId, version));
-    return dependencies;
+    return resolve(repository, Collections.singletonList(new Artifact(groupId, artifactId, version)));
   }
 
-  public static List<Artifact> resolve(MavenRepository repository, List<Artifact> artifacts)
+  public static DependencyResolvingResult resolve(MavenRepository repository, List<Artifact> artifacts)
       throws IOException {
     List<Artifact> dependencies = new ArrayList<>();
     Set<Artifact> visitedArtifacts = new HashSet<>();
     for (Artifact artifact : artifacts) {
       resolveRec(repository, visitedArtifacts, dependencies, artifact.toBase());
     }
-    return dependencies;
+    Map<String, List<Artifact>> artifactVersionsMap = new HashMap<>();
+    for (Artifact artifact : dependencies) {
+      artifactVersionsMap.computeIfAbsent(String.format("%s:%s", artifact.getGroupId(), artifact.getArtifactId()), k -> new ArrayList<>())
+          .add(artifact);
+    }
+    return new DependencyResolvingResult(dependencies, artifactVersionsMap);
   }
 
   private static void resolveRec(MavenRepository repository,
