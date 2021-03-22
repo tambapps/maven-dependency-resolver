@@ -14,7 +14,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractMavenRepository implements MavenRepository {
 
@@ -53,6 +55,12 @@ public abstract class AbstractMavenRepository implements MavenRepository {
     Document document = parse(pomStream);
     PomArtifact pomArtifact = new PomArtifact();
 
+    Element propertyNode = getElementOrNull(document, "properties");
+    Map<String, String> properties = new HashMap<>();
+    if (propertyNode != null) {
+      extractProperties(properties, propertyNode);
+    }
+    pomArtifact.setProperties(properties);
     String groupId = getPropertyOrNull(document, "groupId");
     String version = getPropertyOrNull(document, "version");
     Element parentNode = getElementOrNull(document, "parent");
@@ -110,6 +118,18 @@ public abstract class AbstractMavenRepository implements MavenRepository {
   private String getPropertyOrDefault(Node document, String tagName, String defaultValue) {
     String property = getPropertyOrNull(document, tagName);
     return property == null ? defaultValue : property;
+  }
+
+  private void extractProperties(Map<String, String> properties, Node propertiesNode) {
+    Node firstChild = propertiesNode.getFirstChild();
+    if (firstChild == null) {
+      return;
+    }
+    for (Node child = firstChild; child.getNextSibling() != null; child = child.getNextSibling()) {
+      if (child instanceof Element) {
+        properties.put(child.getNodeName(), child.getTextContent());
+      }
+    }
   }
 
   private List<Dependency> extractDependencies(Node dependenciesNode) {

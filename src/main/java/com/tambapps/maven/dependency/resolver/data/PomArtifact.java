@@ -5,17 +5,18 @@ import lombok.Setter;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
 public class PomArtifact extends Artifact {
-  // TODO parse and resolve properties
   PomArtifact parent;
 
   List<Dependency> dependencies;
   List<Dependency> dependencyManagement;
+  Map<String, String> properties;
 
   public String getGroupId() {
     if (groupId == null) {
