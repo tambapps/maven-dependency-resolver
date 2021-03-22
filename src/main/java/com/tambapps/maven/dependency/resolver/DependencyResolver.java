@@ -35,23 +35,33 @@ public final class DependencyResolver {
     return dependencies;
   }
 
-  private static void resolveRec(MavenRepository repository,
-      Set<BaseArtifact> traversedArtifacts, List<BaseArtifact> dependencies, BaseArtifact artifactDependency)
+  public static List<BaseArtifact> resolve(MavenRepository repository, List<BaseArtifact> artifacts)
       throws IOException {
-    if (traversedArtifacts.contains(artifactDependency)) {
+    List<BaseArtifact> dependencies = new ArrayList<>();
+    Set<BaseArtifact> visitedArtifacts = new HashSet<>();
+    for (BaseArtifact artifact : artifacts) {
+      resolveRec(repository, visitedArtifacts, dependencies, artifact.toBase());
+    }
+    return dependencies;
+  }
+
+  private static void resolveRec(MavenRepository repository,
+      Set<BaseArtifact> visitedArtifacts, List<BaseArtifact> dependencies, BaseArtifact artifactDependency)
+      throws IOException {
+    if (visitedArtifacts.contains(artifactDependency)) {
       return;
     }
     Artifact artifact = repository.retrieveArtifact(artifactDependency.getGroupId(),
         artifactDependency.getArtifactId(), artifactDependency.getVersion());
     BaseArtifact baseArtifact = artifact.toBase();
     dependencies.add(baseArtifact);
-    traversedArtifacts.add(baseArtifact);
+    visitedArtifacts.add(baseArtifact);
     // TODO also fetch parent dependencies if any
     for (Dependency dependency : artifact.getDependencies()) {
       if (dependency.isOptional() || dependency.getScope() != Scope.COMPILE) {
         continue;
       }
-      resolveRec(repository, traversedArtifacts, dependencies, dependency);
+      resolveRec(repository, visitedArtifacts, dependencies, dependency);
     }
   }
 
