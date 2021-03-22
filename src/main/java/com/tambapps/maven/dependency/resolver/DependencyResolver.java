@@ -32,21 +32,12 @@ public final class DependencyResolver {
       throws IOException {
     List<BaseArtifact> dependencies = new ArrayList<>();
     Artifact artifact = repository.retrieveArtifact(groupId, artifactId, version);
-    Set<BaseArtifact> traversedArtifacts = new HashSet<>();
-    BaseArtifact baseArtifact = artifact.toBase();
-    dependencies.add(baseArtifact);
-    traversedArtifacts.add(baseArtifact);
-    for (Dependency dependency : artifact.getDependencies()) {
-      if (dependency.isOptional() || dependency.getScope() != Scope.COMPILE) {
-        continue;
-      }
-      resolveRec(repository, traversedArtifacts, dependencies, dependency);
-    }
+    resolveRec(repository, new HashSet<>(), dependencies, artifact);
     return dependencies;
   }
 
   private static void resolveRec(MavenRepository repository,
-      Set<BaseArtifact> traversedArtifacts, List<BaseArtifact> dependencies, Dependency artifactDependency)
+      Set<BaseArtifact> traversedArtifacts, List<BaseArtifact> dependencies, BaseArtifact artifactDependency)
       throws IOException {
     if (traversedArtifacts.contains(artifactDependency)) {
       return;
