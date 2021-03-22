@@ -1,5 +1,6 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
+import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.exceptions.ArtifactNotFoundException;
 
@@ -8,6 +9,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LocalMavenRepository extends AbstractMavenRepository {
 
@@ -62,6 +66,13 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     try (InputStream inputStream = new FileInputStream(file)) {
       return toArtifact(inputStream);
     }
+  }
+
+  // groupId:artifactId -> List<Artifact>
+  public Map<String, List<Artifact>> listArtifacts() {
+    Map<String, List<Artifact>> map = new HashMap<>();
+    // TODO
+    return map;
   }
 
   public void saveArtifactJar(PomArtifact pomArtifact, InputStream inputStream) throws IOException {
