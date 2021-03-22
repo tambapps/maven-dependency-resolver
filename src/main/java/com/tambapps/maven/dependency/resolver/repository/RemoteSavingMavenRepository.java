@@ -1,7 +1,7 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
 import com.squareup.okhttp.OkHttpClient;
-import com.tambapps.maven.dependency.resolver.data.Artifact;
+import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.exceptions.ArtifactNotFoundException;
 
 import java.io.IOException;
@@ -42,17 +42,17 @@ public class RemoteSavingMavenRepository extends RemoteMavenRepository {
   }
 
   @Override
-  public Artifact retrieveArtifact(String groupId, String artifactId, String version)
+  public PomArtifact retrieveArtifact(String groupId, String artifactId, String version)
       throws IOException {
     try {
       return localRepository.retrieveArtifact(groupId, artifactId, version);
     } catch (ArtifactNotFoundException e) {
-      Artifact artifact = super.retrieveArtifact(groupId, artifactId, version);
-      localRepository.saveArtifactJar(artifact,
-          retrieveArtifactJar(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion()));
-      localRepository.saveArtifactPom(artifact,
-          retrieveArtifactPom(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion()));
-      return artifact;
+      PomArtifact pomArtifact = super.retrieveArtifact(groupId, artifactId, version);
+      localRepository.saveArtifactJar(pomArtifact,
+          retrieveArtifactJar(pomArtifact.getGroupId(), pomArtifact.getArtifactId(), pomArtifact.getVersion()));
+      localRepository.saveArtifactPom(pomArtifact,
+          retrieveArtifactPom(pomArtifact.getGroupId(), pomArtifact.getArtifactId(), pomArtifact.getVersion()));
+      return pomArtifact;
     }
   }
 

@@ -3,7 +3,7 @@ package com.tambapps.maven.dependency.resolver.repository;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-import com.tambapps.maven.dependency.resolver.data.Artifact;
+import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,7 +68,7 @@ public class RemoteMavenRepository extends AbstractMavenRepository {
   }
 
   @Override
-  public Artifact retrieveArtifact(String groupId, String artifactId, String version)
+  public PomArtifact retrieveArtifact(String groupId, String artifactId, String version)
       throws IOException {
     Request request = pomRequest(groupId, artifactId, version).get().build();
     Response response = client.newCall(request).execute();

@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Dependency extends BaseArtifact {
+public class Dependency extends Artifact {
 
   Scope scope;
   boolean optional;

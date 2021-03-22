@@ -1,6 +1,6 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
-import com.tambapps.maven.dependency.resolver.data.Artifact;
+import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +19,8 @@ public interface MavenRepository {
 
   InputStream retrieveArtifactPom(String groupId, String artifactId, String version) throws IOException;
 
-  Artifact retrieveArtifact(String dependencyString) throws IOException;
+  PomArtifact retrieveArtifact(String dependencyString) throws IOException;
 
-  Artifact retrieveArtifact(String groupId, String artifactId, String version) throws IOException;
+  PomArtifact retrieveArtifact(String groupId, String artifactId, String version) throws IOException;
 
 }

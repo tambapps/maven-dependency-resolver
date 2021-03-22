@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.tambapps.maven.dependency.resolver.data.Artifact;
+import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -35,22 +35,22 @@ public class LocalMavenRepositoryTest {
   @Test
   @Ignore
   public void retrieveArtifact() throws IOException {
-    Artifact artifact = repository.retrieveArtifact("com.google.code.gson", "gson", "2.2.4");
-    assertEquals("com.google.code.gson", artifact.getGroupId());
-    assertEquals("gson", artifact.getArtifactId());
-    assertEquals("2.2.4", artifact.getVersion());
-    assertEquals(1, artifact.getDependencies().size());
-    Dependency junitDependency = artifact.getDependencies().get(0);
+    PomArtifact pomArtifact = repository.retrieveArtifact("com.google.code.gson", "gson", "2.2.4");
+    assertEquals("com.google.code.gson", pomArtifact.getGroupId());
+    assertEquals("gson", pomArtifact.getArtifactId());
+    assertEquals("2.2.4", pomArtifact.getVersion());
+    assertEquals(1, pomArtifact.getDependencies().size());
+    Dependency junitDependency = pomArtifact.getDependencies().get(0);
     assertEquals("junit", junitDependency.getGroupId());
     assertEquals("junit", junitDependency.getArtifactId());
     assertEquals("3.8.2", junitDependency.getVersion());
 
-    Artifact parentArtifact = artifact.getParent();
-    assertNotNull(parentArtifact);
-    assertEquals("org.sonatype.oss", parentArtifact.getGroupId());
-    assertEquals("oss-parent", parentArtifact.getArtifactId());
-    assertEquals("7", parentArtifact.getVersion());
-    assertTrue(parentArtifact.getDependencies().isEmpty());
-    assertTrue(parentArtifact.getDependencyManagement().isEmpty());
+    PomArtifact parentPomArtifact = pomArtifact.getParent();
+    assertNotNull(parentPomArtifact);
+    assertEquals("org.sonatype.oss", parentPomArtifact.getGroupId());
+    assertEquals("oss-parent", parentPomArtifact.getArtifactId());
+    assertEquals("7", parentPomArtifact.getVersion());
+    assertTrue(parentPomArtifact.getDependencies().isEmpty());
+    assertTrue(parentPomArtifact.getDependencyManagement().isEmpty());
   }
 }

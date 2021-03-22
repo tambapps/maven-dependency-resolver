@@ -1,6 +1,6 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
-import com.tambapps.maven.dependency.resolver.data.Artifact;
+import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
 import com.tambapps.maven.dependency.resolver.data.Scope;
 import org.w3c.dom.Document;
@@ -44,14 +44,14 @@ public abstract class AbstractMavenRepository implements MavenRepository {
   }
 
   @Override
-  public Artifact retrieveArtifact(String dependencyString) throws IOException {
+  public PomArtifact retrieveArtifact(String dependencyString) throws IOException {
     String[] fields = extractFields(dependencyString);
     return retrieveArtifact(fields[0], fields[1], fields[2]);
   }
 
-  protected Artifact toArtifact(InputStream pomStream) throws IOException {
+  protected PomArtifact toArtifact(InputStream pomStream) throws IOException {
     Document document = parse(pomStream);
-    Artifact artifact = new Artifact();
+    PomArtifact pomArtifact = new PomArtifact();
 
     String groupId = getPropertyOrNull(document, "groupId");
     String version = getPropertyOrNull(document, "version");
@@ -64,11 +64,11 @@ public abstract class AbstractMavenRepository implements MavenRepository {
       version = getPropertyOrNull(parentNode, "version");
     }
 
-    artifact.setGroupId(groupId);
-    artifact.setArtifactId(getPropertyOrNull(document, "artifactId"));
-    artifact.setVersion(version);
-    artifact.setDependencies(extractDependencies(getElementOrNull(document, "dependencies")));
-    artifact.setDependencyManagement(extractDependencies(getElementOrNull(document, "dependencyManagement")));
+    pomArtifact.setGroupId(groupId);
+    pomArtifact.setArtifactId(getPropertyOrNull(document, "artifactId"));
+    pomArtifact.setVersion(version);
+    pomArtifact.setDependencies(extractDependencies(getElementOrNull(document, "dependencies")));
+    pomArtifact.setDependencyManagement(extractDependencies(getElementOrNull(document, "dependencyManagement")));
 
     if (parentNode != null) {
       // we should always fetch parent because if it declared dependencies (not dependenciesManagment)
@@ -76,9 +76,9 @@ public abstract class AbstractMavenRepository implements MavenRepository {
       String parentGroupId = getPropertyOrNull(parentNode, "groupId");
       String parentArtifactId = getPropertyOrNull(parentNode, "artifactId");
       String parentVersion = getPropertyOrNull(parentNode, "version");
-      artifact.setParent(retrieveArtifact(parentGroupId, parentArtifactId, parentVersion));
+      pomArtifact.setParent(retrieveArtifact(parentGroupId, parentArtifactId, parentVersion));
     }
-    return artifact;
+    return pomArtifact;
   }
 
   private Element getElementOrNull(Document document, String tagName) {
