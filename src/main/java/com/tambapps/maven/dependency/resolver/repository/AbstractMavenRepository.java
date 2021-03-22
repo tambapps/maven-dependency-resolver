@@ -18,8 +18,13 @@ import java.util.List;
 
 public abstract class AbstractMavenRepository implements MavenRepository {
 
-  private final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+  private final DocumentBuilderFactory dbFactory;
 
+  AbstractMavenRepository() {
+    dbFactory = DocumentBuilderFactory.newInstance();
+    // REQUIRED
+    dbFactory.setIgnoringComments(true);
+  }
   @Override
   public boolean exists(String dependencyString) throws IOException {
     String[] fields = extractFields(dependencyString);
@@ -46,21 +51,24 @@ public abstract class AbstractMavenRepository implements MavenRepository {
 
   protected Artifact toArtifact(InputStream pomStream) throws IOException {
     Document document = parse(pomStream);
-    document.getElementsByTagName("dependencies");
     Artifact artifact = new Artifact();
 
     String groupId = getPropertyOrNull(document, "groupId");
+    String version = getPropertyOrNull(document, "version");
     Element parentNode = getElementOrNull(document, "parent");
 
     if (groupId == null && parentNode != null) {
       groupId = getPropertyOrNull(parentNode, "groupId");
     }
+    if (version == null && parentNode != null) {
+      version = getPropertyOrNull(parentNode, "version");
+    }
 
     artifact.setGroupId(groupId);
-    artifact.setArtifactId(document.getElementsByTagName("artifactId").item(0).getTextContent());
-    artifact.setVersion(document.getElementsByTagName("version").item(0).getTextContent());
-    artifact.setDependencies(extractDependencies(document.getElementsByTagName("dependencies")));
-    artifact.setDependencyManagement(extractDependencies(document.getElementsByTagName("dependencyManagement")));
+    artifact.setArtifactId(getPropertyOrNull(document, "artifactId"));
+    artifact.setVersion(version);
+    artifact.setDependencies(extractDependencies(getElementOrNull(document, "dependencies")));
+    artifact.setDependencyManagement(extractDependencies(getElementOrNull(document, "dependencyManagement")));
 
     if (parentNode != null) {
       // we should always fetch parent because if it declared dependencies (not dependenciesManagment)
@@ -74,29 +82,45 @@ public abstract class AbstractMavenRepository implements MavenRepository {
   }
 
   private Element getElementOrNull(Document document, String tagName) {
-    NodeList nodes = document.getElementsByTagName(tagName);
-    return nodes.getLength() == 0 ? null : (Element) nodes.item(0);
+    return getElementOrNull(document.getFirstChild(), tagName);
+  }
+
+  private Element getElementOrNull(Node node, String tagName) {
+    Node firstChild = node.getFirstChild();
+    if (firstChild == null) {
+      return null;
+    }
+    for (Node child = firstChild; child.getNextSibling() != null; child = child.getNextSibling()) {
+      if (child.getNodeName().equals(tagName)) {
+        return (Element) child;
+      }
+    }
+    return null;
   }
 
   private String getPropertyOrNull(Document document, String tagName) {
-    NodeList nodes = document.getElementsByTagName(tagName);
-    return nodes.getLength() == 0 ? null :  nodes.item(0).getTextContent();
+    return getPropertyOrNull(document.getFirstChild(), tagName);
   }
 
-  private String getPropertyOrNull(Element document, String tagName) {
-    NodeList nodes = document.getElementsByTagName(tagName);
-    return nodes.getLength() == 0 ? null :  nodes.item(0).getTextContent();
+  private String getPropertyOrNull(Node node, String tagName) {
+    Element element = getElementOrNull(node, tagName);
+    return element == null ? null : element.getTextContent();
   }
 
-  private String getPropertyOrDefault(Element document, String tagName, String defaultValue) {
-    NodeList nodes = document.getElementsByTagName(tagName);
-    return nodes.getLength() == 0 ? defaultValue :  nodes.item(0).getTextContent();
+  private String getPropertyOrDefault(Node document, String tagName, String defaultValue) {
+    String property = getPropertyOrNull(document, tagName);
+    return property == null ? defaultValue : property;
   }
-  private List<Dependency> extractDependencies(NodeList dependencyNodes) {
+
+  private List<Dependency> extractDependencies(Node dependenciesNode) {
     List<Dependency> dependencies = new ArrayList<>();
+    if (dependenciesNode == null) {
+      return dependencies;
+    }
+    NodeList dependencyNodes = ((Element)dependenciesNode).getElementsByTagName("dependency");
 
     for (int i = 0; i < dependencyNodes.getLength(); i++) {
-      Element node = (Element) dependencyNodes.item(i);
+      Node node = dependencyNodes.item(i);
       Dependency dependency = new Dependency();
       dependency.setGroupId(getPropertyOrNull(node, "groupId"));
       dependency.setArtifactId(getPropertyOrNull(node, "artifactId"));
@@ -115,21 +139,19 @@ public abstract class AbstractMavenRepository implements MavenRepository {
       throw new IOException(e);
     }
   }
+
   protected String getKey(String groupId, String artifactId, String version) {
     return groupId.replaceAll("\\.", "/") + "/" +
-        artifactId.replaceAll("\\.", "/") + "/" + version;
+        artifactId.replaceAll("\\.", "/") + "/" + version + "/" +
+        artifactId + "-" + version;
   }
 
   protected String getPomKey(String groupId, String artifactId, String version) {
-    return groupId.replaceAll("\\.", "/") + "/" +
-        artifactId.replaceAll("\\.", "/") + "/" + version + "/" +
-        artifactId + "-" + version + ".pom";
+    return getKey(groupId, artifactId, version) + ".pom";
   }
 
   protected String getJarKey(String groupId, String artifactId, String version) {
-    return groupId.replaceAll("\\.", "/") + "/" +
-        artifactId.replaceAll("\\.", "/") + "/" + version + "/" +
-        artifactId + "-" + version + ".pom";
+    return getKey(groupId, artifactId, version) + ".jar";
   }
 
   protected String[] extractFields(String dependencyString) {
