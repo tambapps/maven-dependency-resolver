@@ -98,17 +98,22 @@ public abstract class AbstractMavenRepository implements MavenRepository {
   private void resolveProperties(PomArtifact pomArtifact) {
     resolveProperties(pomArtifact, pomArtifact);
     pomArtifact.getProperties().put("project.version", pomArtifact.getVersion());
+    pomArtifact.getDependencyManagement().forEach(dep -> resolveProperties(pomArtifact, dep));
     pomArtifact.getDependencies().forEach(dep -> resolveProperties(pomArtifact, dep));
   }
 
   private void resolveProperties(PomArtifact pomArtifact, Artifact artifact) {
+    if (artifact.getVersion() == null) {
+      return;
+    }
     Matcher matcher = PROPERTY_REFERENCE_PATTERN.matcher(artifact.getVersion());
-    if (matcher.find()) {
+    while (matcher.find()) {
       String propertyName = matcher.group(1);
       String propertyValue = pomArtifact.getProperty(propertyName);
       if (propertyValue != null) {
         artifact.setVersion(propertyValue);
       }
+      matcher = PROPERTY_REFERENCE_PATTERN.matcher(artifact.getVersion());
     }
   }
 
@@ -185,8 +190,7 @@ public abstract class AbstractMavenRepository implements MavenRepository {
 
   protected String getKey(String groupId, String artifactId, String version) {
     return groupId.replaceAll("\\.", "/") + "/" +
-        artifactId.replaceAll("\\.", "/") + "/" + version + "/" +
-        artifactId + "-" + version;
+        artifactId + "/" + version + "/" + artifactId + "-" + version;
   }
 
   protected String getPomKey(String groupId, String artifactId, String version) {

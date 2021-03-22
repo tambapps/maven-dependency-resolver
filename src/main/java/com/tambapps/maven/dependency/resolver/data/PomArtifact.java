@@ -3,7 +3,6 @@ package com.tambapps.maven.dependency.resolver.data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,20 +31,20 @@ public class PomArtifact extends Artifact {
 
   public void setParent(PomArtifact parent) {
     this.parent = parent;
-    // look for dependency version if some is not specified
+    // get list of dependencies with unspecified version
     List<Dependency> depsWithoutVersion = dependencies.stream().filter(d -> d.getVersion() == null)
         .collect(Collectors.toList());
-    PomArtifact parentPomArtifact = parent;
-    while (depsWithoutVersion.size() > 0 && parentPomArtifact != null) {
-      Iterator<Dependency> iterator = depsWithoutVersion.iterator();
-      while (iterator.hasNext()) {
-        Dependency dependency = iterator.next();
-        Optional<Dependency> optMatchedDependencyManagement =
-            parentPomArtifact.getDependencyManagement().stream().filter(dependency::matches).findFirst();
-        optMatchedDependencyManagement.ifPresent(value -> dependency.setVersion(value.getVersion()));
-        iterator.remove();
+    for (Dependency dependency : depsWithoutVersion) {
+      PomArtifact parentPomArtifact = parent;
+      // look for version in parent pom dependencyManagements
+      Optional<Dependency> optMatchedDependencyManagement =
+          parentPomArtifact.getDependencyManagement().stream().filter(dependency::matches).findFirst();
+      // look recursively
+      while (!optMatchedDependencyManagement.isPresent() && parentPomArtifact.getParent() != null) {
+        parentPomArtifact = parentPomArtifact.getParent();
+        optMatchedDependencyManagement = parentPomArtifact.getDependencyManagement().stream().filter(dependency::matches).findFirst();
       }
-      parentPomArtifact = parentPomArtifact.getParent();
+      optMatchedDependencyManagement.ifPresent(value -> dependency.setVersion(value.getVersion()));
     }
   }
 
