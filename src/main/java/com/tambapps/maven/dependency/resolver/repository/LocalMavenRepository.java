@@ -104,8 +104,8 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     String version = fields[fields.length - 2];
     String artifactId = fields[fields.length - 1].substring(0, fields[fields.length - 1].length() - version.length() - 5); // minus 5 for '-' and '.jar'
 
-    int artifactIdIndex;
-    for(artifactIdIndex = fields.length -1; !fields[artifactIdIndex].equals(artifactId) && artifactIdIndex > 0; artifactIdIndex--);
+    int artifactIdIndex = fields.length - 1;
+    while (!fields[artifactIdIndex].equals(artifactId)) artifactIdIndex--;
     String groupId = String.join(".", Arrays.copyOfRange(fields, 0, artifactIdIndex));
     return new Artifact(groupId, artifactId, version);
   }
