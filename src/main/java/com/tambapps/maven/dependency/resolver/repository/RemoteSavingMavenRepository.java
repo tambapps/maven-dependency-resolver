@@ -49,9 +49,9 @@ public class RemoteSavingMavenRepository extends RemoteMavenRepository {
     } catch (ArtifactNotFoundException e) {
       PomArtifact pomArtifact = super.retrieveArtifact(groupId, artifactId, version);
       localRepository.saveArtifactJar(pomArtifact,
-          retrieveArtifactJar(pomArtifact.getGroupId(), pomArtifact.getArtifactId(), pomArtifact.getVersion()));
+          super.retrieveArtifactJar(groupId, artifactId, version));
       localRepository.saveArtifactPom(pomArtifact,
-          retrieveArtifactPom(pomArtifact.getGroupId(), pomArtifact.getArtifactId(), pomArtifact.getVersion()));
+          super.retrieveArtifactPom(groupId, artifactId, version));
       return pomArtifact;
     }
   }
@@ -72,6 +72,10 @@ public class RemoteSavingMavenRepository extends RemoteMavenRepository {
     try {
       return localRepository.retrieveArtifactJar(groupId, artifactId, version);
     } catch (ArtifactNotFoundException e) {
+      localRepository.saveArtifactJar(groupId, artifactId, version,
+          super.retrieveArtifactJar(groupId, artifactId, version));
+      localRepository.saveArtifactPom(groupId, artifactId, version,
+          super.retrieveArtifactPom(groupId, artifactId, version));
       return super.retrieveArtifactJar(groupId, artifactId, version);
     }
   }
