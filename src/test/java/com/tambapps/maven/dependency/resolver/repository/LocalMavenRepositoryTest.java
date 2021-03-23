@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
 import org.junit.Ignore;
@@ -12,6 +13,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 public class LocalMavenRepositoryTest {
 
@@ -30,6 +33,14 @@ public class LocalMavenRepositoryTest {
     try (InputStream is = repository.retrieveArtifactJar("com.google.code.gson", "gson", "2.2.4")) {
       assertNotNull(is);
     }
+  }
+
+  @Test
+  @Ignore
+  public void listArtifacts() throws IOException {
+    Map<String, Map<String, List<Artifact>>> map = repository.listArtifacts();
+    System.out.println(map.size());
+    System.out.println(map);
   }
 
   @Test
