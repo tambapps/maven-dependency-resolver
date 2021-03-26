@@ -1,6 +1,7 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
+import com.tambapps.maven.dependency.resolver.exceptions.ArtifactNotFoundException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -49,24 +50,26 @@ public class RemoteMavenRepository extends AbstractMavenRepository {
   public InputStream retrieveArtifactJar(String groupId, String artifactId, String version)
       throws IOException {
     Request request = jarRequest(groupId, artifactId, version).get().build();
-    Response response = client.newCall(request).execute();
-    if (!response.isSuccessful()) {
-      throw new IOException(String.format("Requesting artifact %s:%s:%s failed: %s",groupId, artifactId, version, response.message()));
-    }
-    return response.body().byteStream();
+    return responseStream(client.newCall(request).execute(), groupId, artifactId, version);
   }
 
   @Override
   public InputStream retrieveArtifactPom(String groupId, String artifactId, String version)
       throws IOException {
     Request request = pomRequest(groupId, artifactId, version).get().build();
-    Response response = client.newCall(request).execute();
-    if (!response.isSuccessful()) {
-      throw new IOException(String.format("Requesting artifact %s:%s:%s failed: %s",groupId, artifactId, version, response.message()));
-    }
-    return response.body().byteStream();
+    return responseStream(client.newCall(request).execute(), groupId, artifactId, version);
   }
 
+  private InputStream responseStream(Response response, String groupId, String artifactId, String version)
+      throws IOException {
+    if (response.isSuccessful()) {
+      return response.body().byteStream();
+    } else if (response.code() == 404) {
+      throw new ArtifactNotFoundException();
+    } else {
+      throw new IOException(String.format("Requesting artifact %s:%s:%s failed: %s",groupId, artifactId, version, response.message()));
+    }
+  }
   @Override
   public PomArtifact retrieveArtifact(String groupId, String artifactId, String version)
       throws IOException {
