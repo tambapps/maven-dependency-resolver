@@ -48,8 +48,12 @@ public class RemoteSavingMavenRepository extends RemoteMavenRepository {
       return localRepository.retrieveArtifact(groupId, artifactId, version);
     } catch (ArtifactNotFoundException e) {
       PomArtifact pomArtifact = super.retrieveArtifact(groupId, artifactId, version);
-      localRepository.saveArtifactJar(pomArtifact,
-          super.retrieveArtifactJar(groupId, artifactId, version));
+      try {
+        localRepository.saveArtifactJar(pomArtifact,
+            super.retrieveArtifactJar(groupId, artifactId, version));
+      } catch (ArtifactNotFoundException ignored) {
+        // sometimes a dependency can be just pom, with no jar
+      }
       localRepository.saveArtifactPom(pomArtifact,
           super.retrieveArtifactPom(groupId, artifactId, version));
       return pomArtifact;
