@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -140,13 +141,19 @@ public class LocalMavenRepository extends AbstractMavenRepository {
 
   public void saveArtifactJar(String groupId, String artifactId, String version, InputStream inputStream) throws IOException {
     File file = new File(repoRoot, getJarKey(groupId, artifactId, version));
-    Files.copy(inputStream, file.toPath());
+    if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+      throw new IOException("Couldn't create directory " + file.getParent());
+    }
+    Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
   }
   public void saveArtifactPom(PomArtifact pomArtifact, InputStream inputStream) throws IOException {
     saveArtifactPom(pomArtifact.getGroupId(), pomArtifact.getArtifactId(), pomArtifact.getVersion(), inputStream);
   }
   public void saveArtifactPom(String groupId, String artifactId, String version, InputStream inputStream) throws IOException {
     File file = new File(repoRoot, getPomKey(groupId, artifactId, version));
-    Files.copy(inputStream, file.toPath());
+    if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+      throw new IOException("Couldn't create directory " + file.getParent());
+    }
+    Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
   }
 }
