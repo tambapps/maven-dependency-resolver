@@ -1,8 +1,8 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
-import com.squareup.okhttp.OkHttpClient;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.exceptions.ArtifactNotFoundException;
+import okhttp3.OkHttpClient;
 
 import java.io.IOException;
 import java.io.InputStream;
