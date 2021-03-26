@@ -1,5 +1,7 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
+import static com.tambapps.maven.dependency.resolver.data.Artifact.extractFields;
+
 import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
@@ -23,7 +25,7 @@ import java.util.regex.Pattern;
 
 public abstract class AbstractMavenRepository implements MavenRepository {
 
-  private static final Pattern PROPERTY_REFERENCE_PATTERN = Pattern.compile("\\$\\{([^\\s{}]*)}");
+  private static final Pattern PROPERTY_REFERENCE_PATTERN = Pattern.compile("\\$\\{([^\\s{}]*)\\}");
 
   private final DocumentBuilderFactory dbFactory;
 
@@ -201,11 +203,4 @@ public abstract class AbstractMavenRepository implements MavenRepository {
     return getKey(groupId, artifactId, version) + ".jar";
   }
 
-  protected String[] extractFields(String dependencyString) {
-    String[] fields = dependencyString.split(":");
-    if (fields.length != 3) {
-      throw new IllegalArgumentException("Argument should be in pattern artifactId:groupId:version");
-    }
-    return fields;
-  }
 }
