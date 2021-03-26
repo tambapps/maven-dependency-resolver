@@ -23,7 +23,7 @@ public final class DependencyResolver {
 
   public static DependencyResolvingResult resolve(MavenRepository repository, String dependencyString)
       throws IOException {
-    String[] fields = extractFields(dependencyString);
+    String[] fields = Artifact.extractFields(dependencyString);
     return resolve(repository, fields[0], fields[1], fields[2]);
   }
 
@@ -72,11 +72,4 @@ public final class DependencyResolver {
     }
   }
 
-  private static String[] extractFields(String dependencyString) {
-    String[] fields = dependencyString.split(":");
-    if (fields.length != 3) {
-      throw new IllegalArgumentException("Argument should be in pattern artifactId:groupId:version");
-    }
-    return fields;
-  }
 }

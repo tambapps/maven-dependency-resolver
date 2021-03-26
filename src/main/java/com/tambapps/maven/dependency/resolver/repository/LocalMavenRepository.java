@@ -1,5 +1,7 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
+import static com.tambapps.maven.dependency.resolver.data.Artifact.extractFields;
+
 import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.exceptions.ArtifactNotFoundException;
@@ -15,12 +17,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class LocalMavenRepository extends AbstractMavenRepository {
 
   // may be useless
-  private final File root;
-  private final File repoRoot;
+  protected final File root;
+  protected final File repoRoot;
 
   public LocalMavenRepository(File root) {
     this.root = root;
@@ -71,15 +74,36 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     }
   }
 
+  public List<Artifact> getAllArtifacts() throws IOException {
+    return Files.walk(repoRoot.toPath()).filter(this::repoJarFile)
+        .map(this::toArtifact)
+        .collect(Collectors.toList());
+  }
+
   // groupId -> artifactId -> List<Artifact>
-  public Map<String, Map<String, List<Artifact>>> listArtifacts() throws IOException {
-    Map<String, Map<String, List<Artifact>>> map = new HashMap<>();
+  public Map<String, Map<String, List<String>>> listArtifacts() throws IOException {
+    Map<String, Map<String, List<String>>> map = new HashMap<>();
     Files.walk(repoRoot.toPath()).filter(this::repoJarFile)
         .map(this::toArtifact)
         .forEach(a -> map.computeIfAbsent(a.getGroupId(), k -> new HashMap<>())
             .computeIfAbsent(a.getArtifactId(), k -> new ArrayList<>())
-            .add(a));
+            .add(a.getVersion()));
     return map;
+  }
+
+  public List<File> getJarFiles(List<Artifact> artifacts) {
+    return artifacts.stream()
+        .map(a -> new File(repoRoot, getJarKey(a.getGroupId(), a.getArtifactId(), a.getVersion())))
+        .filter(File::exists)
+        .collect(Collectors.toList());
+  }
+
+  public File getJarFile(Artifact a) {
+    File jarFile = new File(repoRoot, getJarKey(a.getGroupId(), a.getArtifactId(), a.getVersion()));
+    if (!jarFile.exists()) {
+      throw new ArtifactNotFoundException();
+    }
+    return jarFile;
   }
 
   private boolean repoJarFile(Path path) {

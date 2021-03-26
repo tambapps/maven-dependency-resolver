@@ -38,7 +38,7 @@ public class LocalMavenRepositoryTest {
   @Test
   @Ignore
   public void listArtifacts() throws IOException {
-    Map<String, Map<String, List<Artifact>>> map = repository.listArtifacts();
+    Map<String, Map<String, List<String>>> map = repository.listArtifacts();
     System.out.println(map.size());
     System.out.println(map);
   }
