@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 
 public abstract class AbstractMavenRepository implements MavenRepository {
 
+  protected static final String JAR_SUFFIX = ".jar";
+  protected static final String POM_SUFFIX = ".pom";
   private static final Pattern PROPERTY_REFERENCE_PATTERN = Pattern.compile("\\$\\{([^\\s{}]*)\\}");
 
   private final DocumentBuilderFactory dbFactory;
@@ -196,11 +198,11 @@ public abstract class AbstractMavenRepository implements MavenRepository {
   }
 
   protected String getPomKey(String groupId, String artifactId, String version) {
-    return getKey(groupId, artifactId, version) + ".pom";
+    return getKey(groupId, artifactId, version) + POM_SUFFIX;
   }
 
   protected String getJarKey(String groupId, String artifactId, String version) {
-    return getKey(groupId, artifactId, version) + ".jar";
+    return getKey(groupId, artifactId, version) + JAR_SUFFIX;
   }
 
 }

@@ -132,7 +132,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
 
   private boolean repoJarFile(Path path) {
     String pathString = path.toAbsolutePath().toString();
-    if (!Files.isRegularFile(path) || !pathString.endsWith(".jar")) {
+    if (!Files.isRegularFile(path) || !pathString.endsWith(JAR_SUFFIX)) {
       return false;
     }
     String[] fields = pathString.split("/");
@@ -142,7 +142,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     // now stuff to match library jar, not javadoc or source.
     // library jar should ends with ${version}.jar
     String version = fields[fields.length - 2];
-    return pathString.endsWith(version + ".jar");
+    return pathString.endsWith(version + JAR_SUFFIX);
   }
 
   private Artifact toArtifact(Path path) {
