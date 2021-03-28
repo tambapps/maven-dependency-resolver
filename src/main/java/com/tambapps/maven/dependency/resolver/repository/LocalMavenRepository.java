@@ -115,7 +115,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
   }
 
   public boolean deleteArtifact(Artifact a) {
-    File artifactDir = getJarFile(a).getParentFile();
+    File artifactDir = new File(repoRoot, getPomKey(a.getGroupId(), a.getArtifactId(), a.getVersion())).getParentFile();
     File[] children = artifactDir.listFiles();
     return (children == null || deleteRecursively(children)) && artifactDir.delete();
   }
