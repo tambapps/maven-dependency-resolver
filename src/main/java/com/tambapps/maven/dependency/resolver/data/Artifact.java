@@ -24,6 +24,10 @@ public class Artifact {
     return fields;
   }
 
+  public String toArtifactString() {
+    return String.format("%s:%s:%s", groupId, artifactId, version);
+  }
+
   public static Artifact from(String artifactString) {
     String[] fields = extractFields(artifactString);
     return new Artifact(fields[0], fields[1], fields[2]);
