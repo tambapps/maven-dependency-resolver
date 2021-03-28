@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 public class LocalMavenRepository extends AbstractMavenRepository {
 
-  // may be useless
   protected final File root;
   protected final File repoRoot;
 
@@ -105,6 +104,14 @@ public class LocalMavenRepository extends AbstractMavenRepository {
       throw new ArtifactNotFoundException();
     }
     return jarFile;
+  }
+
+  public File getSettingsFile() {
+    return new File(root, "settings.xml");
+  }
+
+  public File getSecuritySettingsFile() {
+    return new File(root, "settings-security.xml");
   }
 
   public boolean deleteArtifact(Artifact a) {
