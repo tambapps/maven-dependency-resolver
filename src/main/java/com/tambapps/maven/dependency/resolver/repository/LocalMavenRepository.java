@@ -75,7 +75,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
   }
 
   public List<Artifact> getAllArtifacts() throws IOException {
-    return Files.walk(repoRoot.toPath()).filter(this::repoJarFile)
+    return Files.walk(repoRoot.toPath()).filter(this::repoPomFile)
         .map(this::toArtifact)
         .collect(Collectors.toList());
   }
@@ -83,7 +83,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
   // groupId -> artifactId -> List<Artifact>
   public Map<String, Map<String, List<String>>> listArtifacts() throws IOException {
     Map<String, Map<String, List<String>>> map = new HashMap<>();
-    Files.walk(repoRoot.toPath()).filter(this::repoJarFile)
+    Files.walk(repoRoot.toPath()).filter(this::repoPomFile)
         .map(this::toArtifact)
         .forEach(a -> map.computeIfAbsent(a.getGroupId(), k -> new HashMap<>())
             .computeIfAbsent(a.getArtifactId(), k -> new ArrayList<>())
@@ -130,9 +130,9 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     return artifactDir.delete();
   }
 
-  private boolean repoJarFile(Path path) {
+  private boolean repoPomFile(Path path) {
     String pathString = path.toAbsolutePath().toString();
-    if (!Files.isRegularFile(path) || !pathString.endsWith(JAR_SUFFIX)) {
+    if (!Files.isRegularFile(path) || !pathString.endsWith(POM_SUFFIX)) {
       return false;
     }
     String[] fields = pathString.split("/");
@@ -140,9 +140,9 @@ public class LocalMavenRepository extends AbstractMavenRepository {
       return false;
     }
     // now stuff to match library jar, not javadoc or source.
-    // library jar should ends with ${version}.jar
+    // library jar should ends with ${version}.pom
     String version = fields[fields.length - 2];
-    return pathString.endsWith(version + JAR_SUFFIX);
+    return pathString.endsWith(version + POM_SUFFIX);
   }
 
   private Artifact toArtifact(Path path) {
@@ -150,7 +150,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     String relativePath = pathString.substring(repoRoot.getAbsolutePath().length() + 1);
     String[] fields = relativePath.split("/");
     String version = fields[fields.length - 2];
-    String artifactId = fields[fields.length - 1].substring(0, fields[fields.length - 1].length() - version.length() - 5); // minus 5 for '-' and '.jar'
+    String artifactId = fields[fields.length - 1].substring(0, fields[fields.length - 1].length() - version.length() - 5); // minus 5 for '-' and '.pom'
 
     int artifactIdIndex = fields.length - 1;
     while (!fields[artifactIdIndex].equals(artifactId)) artifactIdIndex--;
