@@ -117,19 +117,19 @@ public class LocalMavenRepository extends AbstractMavenRepository {
   public boolean deleteArtifact(Artifact a) {
     File artifactDir = getJarFile(a).getParentFile();
     File[] children = artifactDir.listFiles();
-    if (children == null) {
-      return false;
-    }
-    boolean b = true;
-    for (File child : children) {
-      b = b && child.delete();
-    }
-    if (!b) {
-      return false;
-    }
-    return artifactDir.delete();
+    return (children == null || deleteRecursively(children)) && artifactDir.delete();
   }
 
+  private boolean deleteRecursively(File[] files) {
+    boolean b = true;
+    for (File file : files) {
+      if (file.isDirectory()) {
+        b = b && deleteRecursively(file.listFiles());
+      }
+      b = b && file.delete();
+    }
+    return b;
+  }
   private boolean repoPomFile(Path path) {
     String pathString = path.toAbsolutePath().toString();
     if (!Files.isRegularFile(path) || !pathString.endsWith(POM_SUFFIX)) {
