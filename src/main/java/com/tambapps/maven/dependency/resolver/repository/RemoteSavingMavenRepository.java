@@ -50,14 +50,14 @@ public class RemoteSavingMavenRepository implements MavenRepository {
   @Override
   public PomArtifact retrieveArtifact(String groupId, String artifactId, String version)
       throws IOException {
-    for (MavenRepository repository : allRepositories) {
-      try {
-        return repository.retrieveArtifact(groupId, artifactId, version);
-      } catch (ArtifactNotFoundException e) {
-        // just try with the next repository
+    try {
+      return localRepository.retrieveArtifact(groupId, artifactId, version);
+    } catch (ArtifactNotFoundException e) {
+      if (!retrieveFromRemoteRepositoriesAndSaveLocally(groupId, artifactId, version)) {
+        throw new ArtifactNotFoundException(groupId, artifactId, version);
       }
+      return localRepository.retrieveArtifact(groupId, artifactId, version);
     }
-    throw new ArtifactNotFoundException();
   }
 
   @Override
@@ -70,7 +70,7 @@ public class RemoteSavingMavenRepository implements MavenRepository {
         // just try with the next repository
       }
     }
-    throw new ArtifactNotFoundException();
+    throw new ArtifactNotFoundException(groupId, artifactId, version);
   }
 
   @Override
@@ -79,25 +79,33 @@ public class RemoteSavingMavenRepository implements MavenRepository {
     try {
       return localRepository.retrieveArtifactJar(groupId, artifactId, version);
     } catch (ArtifactNotFoundException e) {
-      // skipping local repository
-      for (int i = 1; i < allRepositories.size(); i++) {
-        try {
-          MavenRepository remoteRepository = allRepositories.get(i);
-          localRepository.saveArtifactJar(groupId, artifactId, version,
-              remoteRepository.retrieveArtifactJar(groupId, artifactId, version));
-          localRepository.saveArtifactPom(groupId, artifactId, version,
-              remoteRepository.retrieveArtifactPom(groupId, artifactId, version));
-        } catch (ArtifactNotFoundException e1) {
-          // just try with the next repository
-        }
-      }
-
-      // now let's check if the artifact was downloaded in the local repository
-      if (!localRepository.exists(groupId, artifactId, version)) {
-        // if it weren't, it means that the artifact was not found in remote repositories
+      if (!retrieveFromRemoteRepositoriesAndSaveLocally(groupId, artifactId, version)) {
         throw e;
       }
       return localRepository.retrieveArtifactJar(groupId, artifactId, version);
     }
+  }
+
+  // return true if found on one of the remote repositories
+  private boolean retrieveFromRemoteRepositoriesAndSaveLocally(String groupId, String artifactId, String version)
+      throws IOException {
+    // skipping local repository
+    for (int i = 1; i < allRepositories.size(); i++) {
+      try {
+        saveInLocalRepository(allRepositories.get(i), groupId, artifactId, version);
+        return true;
+      } catch (ArtifactNotFoundException e) {
+        // just try with the next repository
+      }
+    }
+    return false;
+  }
+
+  private void saveInLocalRepository(MavenRepository repository, String groupId, String artifactId, String version)
+      throws IOException {
+    localRepository.saveArtifactJar(groupId, artifactId, version,
+        repository.retrieveArtifactJar(groupId, artifactId, version));
+    localRepository.saveArtifactPom(groupId, artifactId, version,
+        repository.retrieveArtifactPom(groupId, artifactId, version));
   }
 }

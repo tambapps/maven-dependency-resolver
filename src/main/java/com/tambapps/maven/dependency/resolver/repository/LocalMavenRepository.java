@@ -47,7 +47,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
       throws IOException {
     File file = new File(repoRoot, getJarKey(groupId, artifactId, version));
     if (!file.exists()) {
-      throw new ArtifactNotFoundException();
+      throw new ArtifactNotFoundException(groupId, artifactId, version);
     }
     return new FileInputStream(file);
   }
@@ -57,7 +57,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
       throws IOException {
     File file = new File(repoRoot, getPomKey(groupId, artifactId, version));
     if (!file.exists()) {
-      throw new ArtifactNotFoundException();
+      throw new ArtifactNotFoundException(groupId, artifactId, version);
     }
     return new FileInputStream(file);
   }
@@ -67,7 +67,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
       throws IOException {
     File file = new File(repoRoot, getPomKey(groupId, artifactId, version));
     if (!file.exists()) {
-      throw new ArtifactNotFoundException();
+      throw new ArtifactNotFoundException(groupId, artifactId, version);
     }
     try (InputStream inputStream = new FileInputStream(file)) {
       return toArtifact(inputStream);
@@ -101,7 +101,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
   public File getJarFile(Artifact a) {
     File jarFile = new File(repoRoot, getJarKey(a.getGroupId(), a.getArtifactId(), a.getVersion()));
     if (!jarFile.exists()) {
-      throw new ArtifactNotFoundException();
+      throw new ArtifactNotFoundException(a.getGroupId(), a.getArtifactId(), a.getVersion());
     }
     return jarFile;
   }

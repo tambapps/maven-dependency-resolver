@@ -65,7 +65,7 @@ public class RemoteMavenRepository extends AbstractMavenRepository {
     if (response.isSuccessful()) {
       return response.body().byteStream();
     } else if (response.code() == 404) {
-      throw new ArtifactNotFoundException();
+      throw new ArtifactNotFoundException(groupId, artifactId, version);
     } else {
       throw new IOException(String.format("Requesting artifact %s:%s:%s failed: %s",groupId, artifactId, version, response.message()));
     }
