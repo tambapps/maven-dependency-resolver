@@ -13,8 +13,7 @@ import java.util.List;
  * Repository that look for dependency locally, and if not found in remote repository.
  * all fetched dependencies are saved in local repository
  */
-// TODO use MavenRepository instead
-public class RemoteSavingMavenRepository extends AbstractMavenRepository {
+public class RemoteSavingMavenRepository implements MavenRepository {
 
   @Getter
   private final LocalMavenRepository localRepository;

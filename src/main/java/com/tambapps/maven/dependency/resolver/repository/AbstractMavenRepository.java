@@ -1,7 +1,5 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
-import static com.tambapps.maven.dependency.resolver.data.Artifact.extractFields;
-
 import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
@@ -35,29 +33,6 @@ public abstract class AbstractMavenRepository implements MavenRepository {
     dbFactory = DocumentBuilderFactory.newInstance();
     // REQUIRED
     dbFactory.setIgnoringComments(true);
-  }
-  @Override
-  public boolean exists(String dependencyString) throws IOException {
-    String[] fields = extractFields(dependencyString);
-    return exists(fields[0], fields[1], fields[2]);
-  }
-
-  @Override
-  public InputStream retrieveArtifactJar(String dependencyString) throws IOException {
-    String[] fields = extractFields(dependencyString);
-    return retrieveArtifactJar(fields[0], fields[1], fields[2]);
-  }
-
-  @Override
-  public InputStream retrieveArtifactPom(String dependencyString) throws IOException {
-    String[] fields = extractFields(dependencyString);
-    return retrieveArtifactPom(fields[0], fields[1], fields[2]);
-  }
-
-  @Override
-  public PomArtifact retrieveArtifact(String dependencyString) throws IOException {
-    String[] fields = extractFields(dependencyString);
-    return retrieveArtifact(fields[0], fields[1], fields[2]);
   }
 
   protected PomArtifact toArtifact(InputStream pomStream) throws IOException {
