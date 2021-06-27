@@ -26,7 +26,7 @@ public class RemoteMavenRepository extends AbstractMavenRepository {
 
   @Override
   public boolean exists(String groupId, String artifactId, String version) throws IOException  {
-    Request request = jarRequest(groupId, artifactId, version).get().build();
+    Request request = pomRequest(groupId, artifactId, version).get().build();
     Response response = client.newCall(request).execute();
     switch (response.code()) {
       case 200:

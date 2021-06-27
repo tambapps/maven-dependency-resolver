@@ -39,7 +39,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
 
   @Override
   public boolean exists(String groupId, String artifactId, String version) {
-    return new File(repoRoot, getJarKey(groupId, artifactId, version)).exists();
+    return new File(repoRoot, getPomKey(groupId, artifactId, version)).exists();
   }
 
   @Override
