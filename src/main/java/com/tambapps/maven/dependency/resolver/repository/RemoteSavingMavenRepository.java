@@ -10,15 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Repository that look for dependency locally, and if not found in remote repository.
- * all fetched dependencies are saved in local repository
+ * Repository that look for dependency locally, and if not found in remote repositories.
+ * all fetched dependencies are saved in the local repository
  */
 public class RemoteSavingMavenRepository implements MavenRepository {
 
   @Getter
   private final LocalMavenRepository localRepository;
-  // the first element of this list is the localRepository.
-  // this is to simplify code
+  // the first element of this list is the localRepository. This is to simplify code
   private final List<MavenRepository> allRepositories;
 
   public RemoteSavingMavenRepository(LocalMavenRepository localRepository,
@@ -95,7 +94,7 @@ public class RemoteSavingMavenRepository implements MavenRepository {
 
       // now let's check if the artifact was downloaded in the local repository
       if (!localRepository.exists(groupId, artifactId, version)) {
-        // if it weren't, it means that the artifact was not found in all remote repositories
+        // if it weren't, it means that the artifact was not found in remote repositories
         throw e;
       }
       return localRepository.retrieveArtifactJar(groupId, artifactId, version);
