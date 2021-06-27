@@ -6,7 +6,7 @@
 
   <groupId>com.tambapps.maven</groupId>
   <artifactId>maven-dependency-resolver</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <build>
     <plugins>
       <plugin>
