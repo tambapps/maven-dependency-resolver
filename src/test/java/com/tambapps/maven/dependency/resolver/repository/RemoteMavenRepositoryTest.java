@@ -17,14 +17,12 @@ public class RemoteMavenRepositoryTest {
   private final RemoteMavenRepository repository = new RemoteMavenRepository(RemoteMavenRepository.MAVEN_REPO_URL);
 
   @Test
-  @Ignore
   public void existsTest() throws IOException {
     assertTrue(repository.exists("com.google.code.gson", "gson", "2.2.4"));
     assertTrue(repository.exists("com.google.code.gson:gson:2.2.4"));
   }
 
   @Test
-  @Ignore
   public void retrieveArtifactJar() throws IOException {
     try (InputStream is = repository.retrieveArtifactJar("com.google.code.gson", "gson", "2.2.4")) {
       assertNotNull(is);
@@ -32,7 +30,6 @@ public class RemoteMavenRepositoryTest {
   }
 
   @Test
-  @Ignore
   public void retrieveArtifact() throws IOException {
     PomArtifact pomArtifact = repository.retrieveArtifact("com.google.code.gson", "gson", "2.2.4");
     assertEquals("com.google.code.gson", pomArtifact.getGroupId());
@@ -51,5 +48,13 @@ public class RemoteMavenRepositoryTest {
     assertEquals("7", parentPomArtifact.getVersion());
     assertTrue(parentPomArtifact.getDependencies().isEmpty());
     assertTrue(parentPomArtifact.getDependencyManagement().isEmpty());
+  }
+
+  @Test
+  public void testJitPack() throws IOException {
+    final RemoteMavenRepository repository = new RemoteMavenRepository("https://jitpack.io");
+    assertTrue(repository.exists("com.github.tambapps", "hyperpoet", "v1.0.0"));
+    PomArtifact pomArtifact = repository.retrieveArtifact("com.github.tambapps", "hyperpoet", "v1.0.0");
+    System.out.println(pomArtifact);
   }
 }
