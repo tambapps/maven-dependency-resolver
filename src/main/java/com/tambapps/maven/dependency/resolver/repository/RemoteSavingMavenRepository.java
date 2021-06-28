@@ -1,5 +1,6 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
+import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.exceptions.ArtifactNotFoundException;
 import lombok.SneakyThrows;
@@ -98,5 +99,24 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
       }
       return super.retrieveArtifactJar(groupId, artifactId, version);
     }
+  }
+
+  @SneakyThrows
+  @Override
+  public File getJarFile(Artifact a) {
+    try {
+      return super.getJarFile(a);
+    } catch (ArtifactNotFoundException e) {
+      for (RemoteMavenRepository remoteRepository : remoteRepositories) {
+        try {
+          saveArtifactJar(a.getGroupId(), a.getArtifactId(), a.getVersion(),
+              remoteRepository.retrieveArtifactJar(a.getGroupId(), a.getArtifactId(), a.getVersion()));
+          break;
+        } catch (ArtifactNotFoundException e1) {
+          // just try with the next repository
+        }
+      }
+    }
+    return super.getJarFile(a);
   }
 }
