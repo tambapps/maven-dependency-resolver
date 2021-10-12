@@ -15,6 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,10 +154,29 @@ public abstract class AbstractMavenRepository implements MavenRepository {
       dependency.setArtifactId(getPropertyOrNull(node, "artifactId"));
       dependency.setVersion(getPropertyOrNull(node, "version"));
       dependency.setScope(Scope.valueOf(getPropertyOrDefault(node, "scope", "compile").toUpperCase()));
-      dependency.setOptional(getPropertyOrDefault(node, "optional", "false").equals("true"));
+      dependency.setOptional(Boolean.parseBoolean(getPropertyOrNull(node, "optional")));
+      dependency.setExclusions(extractDependencyExclusions(node));
       dependencies.add(dependency);
     }
     return dependencies;
+  }
+
+  private List<Artifact> extractDependencyExclusions(Node dependencyNode) {
+    Element exclusions = getElementOrNull(dependencyNode, "exclusions");
+    if (exclusions == null) {
+      return Collections.emptyList();
+    }
+    List<Artifact> excludedArtifacts = new ArrayList<>();
+    NodeList exclusionNodes = exclusions.getElementsByTagName("exclusion");
+
+    for (int i = 0; i < exclusionNodes.getLength(); i++) {
+      Node node = exclusionNodes.item(i);
+      Artifact artifact = new Artifact();
+      artifact.setGroupId(getPropertyOrNull(node, "groupId"));
+      artifact.setArtifactId(getPropertyOrNull(node, "artifactId"));
+      excludedArtifacts.add(artifact);
+    }
+    return excludedArtifacts;
   }
 
   private Document parse(InputStream is) throws IOException {

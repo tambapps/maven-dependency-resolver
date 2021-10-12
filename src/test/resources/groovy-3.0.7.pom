@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.groovy</groupId>
+  <artifactId>groovy</artifactId>
+  <version>3.0.7</version>
+  <packaging>jar</packaging>
+  <name>Apache Groovy</name>
+  <description>Groovy: A powerful, dynamic language for the JVM</description>
+  <url>https://groovy-lang.org</url>
+  <inceptionYear>2003</inceptionYear>
+
+  <!-- BLABLA I've removed some things -->
+  <dependencies>
+    <dependency>
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>xstream</artifactId>
+      <version>1.4.14</version>
+      <scope>runtime</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>junit</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>xpp3_min</artifactId>
+          <groupId>xpp3</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>xmlpull</artifactId>
+          <groupId>xmlpull</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jmock</artifactId>
+          <groupId>jmock</groupId>
+        </exclusion>
+      </exclusions>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource.jansi</groupId>
+      <artifactId>jansi</artifactId>
+      <version>1.18</version>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ivy</groupId>
+      <artifactId>ivy</artifactId>
+      <version>2.5.0</version>
+      <scope>runtime</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.gpars</groupId>
+      <artifactId>gpars</artifactId>
+      <version>1.2.1</version>
+      <scope>runtime</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>groovy-all</artifactId>
+          <groupId>org.codehaus.groovy</groupId>
+        </exclusion>
+      </exclusions>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.tunnelvisionlabs</groupId>
+      <artifactId>antlr4-runtime</artifactId>
+      <version>4.7.4</version>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+</project>
