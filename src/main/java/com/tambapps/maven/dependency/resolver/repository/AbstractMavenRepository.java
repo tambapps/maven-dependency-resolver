@@ -77,7 +77,16 @@ public abstract class AbstractMavenRepository implements MavenRepository {
 
   private void resolveProperties(PomArtifact pomArtifact) {
     resolveProperties(pomArtifact, pomArtifact);
-    pomArtifact.getProperties().put("project.version", pomArtifact.getVersion());
+    Map<String, String> properties = pomArtifact.getProperties();
+    properties.put("project.groupId", pomArtifact.getGroupId());
+    properties.put("project.artifactId", pomArtifact.getArtifactId());
+    properties.put("project.version", pomArtifact.getVersion());
+    PomArtifact parentPom = pomArtifact.getParent();
+    if (parentPom != null) {
+      properties.put("project.parent.groupId", parentPom.getGroupId());
+      properties.put("project.parent.artifactId", parentPom.getArtifactId());
+      properties.put("project.parent.version", parentPom.getVersion());
+    }
     pomArtifact.getDependencyManagement().forEach(dep -> resolveProperties(pomArtifact, dep));
     pomArtifact.getDependencies().forEach(dep -> resolveProperties(pomArtifact, dep));
   }

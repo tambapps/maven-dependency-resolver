@@ -2,6 +2,7 @@ package com.tambapps.maven.dependency.resolver.repository;
 
 import static com.tambapps.maven.dependency.resolver.data.Artifact.extractFields;
 
+import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 
 import java.io.IOException;
@@ -29,6 +30,10 @@ public interface MavenRepository {
   }
 
   InputStream retrieveArtifactPom(String groupId, String artifactId, String version) throws IOException;
+
+  default PomArtifact retrieveArtifact(Artifact artifact) throws IOException {
+    return retrieveArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
+  }
 
   default PomArtifact retrieveArtifact(String dependencyString) throws IOException {
     String[] fields = extractFields(dependencyString);

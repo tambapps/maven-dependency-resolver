@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Artifact {
+
   String groupId;
   String artifactId;
   String version;
@@ -31,5 +32,19 @@ public class Artifact {
   public static Artifact from(String artifactString) {
     String[] fields = extractFields(artifactString);
     return new Artifact(fields[0], fields[1], fields[2]);
+  }
+
+  public boolean matches(Artifact artifact) {
+    return getGroupId().equals(artifact.getGroupId()) &&
+        getArtifactId().equals(artifact.getArtifactId());
+  }
+
+  /**
+   * Return whether this artifact is any artifact (groupId = artifactId = "*")
+   * Useful for dependency exclusion
+   * @return whether this artifact is any artifact
+   */
+  public boolean isAnyArtifact() {
+    return "*".equals(groupId) && "*".equals(artifactId);
   }
 }

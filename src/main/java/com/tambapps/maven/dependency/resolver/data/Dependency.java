@@ -15,11 +15,6 @@ public class Dependency extends Artifact {
   // TODO take them into account when fetching dependencies
   List<Artifact> exclusions;
 
-  public boolean matches(Dependency dependency) {
-    return getGroupId().equals(dependency.getGroupId()) &&
-        getArtifactId().equals(dependency.getArtifactId());
-  }
-
   @Override
   public boolean equals(Object o) {
     return super.equals(o);
