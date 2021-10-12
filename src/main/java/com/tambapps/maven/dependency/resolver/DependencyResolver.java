@@ -27,13 +27,18 @@ public class DependencyResolver {
   }
 
   public DependencyResolvingResult resolve(Artifact artifact) throws IOException {
-    return resolve(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
+    return artifact instanceof PomArtifact ? resolve((PomArtifact) artifact) :
+        resolve(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
   }
+
   public DependencyResolvingResult resolve(String groupId, String artifactId, String version) throws IOException {
+    return resolve(repository.retrieveArtifact(groupId, artifactId, version));
+  }
+
+  public DependencyResolvingResult resolve(PomArtifact pomArtifact) throws IOException {
     // reset variables in case resolve(...) has already been called
     fetchedArtifacts.clear();
-
-    PomArtifact pomArtifact = repository.retrieveArtifact(groupId, artifactId, version);
+    fetchedArtifacts.add(pomArtifact);
 
     for (Dependency dependency : pomArtifact.getDependencies()) {
       // here we gooooooooo
