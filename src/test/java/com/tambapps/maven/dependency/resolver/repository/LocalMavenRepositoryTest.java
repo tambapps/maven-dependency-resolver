@@ -1,14 +1,14 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
-import org.junit.Ignore;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,14 +21,14 @@ public class LocalMavenRepositoryTest {
   private final LocalMavenRepository repository = new LocalMavenRepository(new File(new File(System.getProperty("user.home")), ".m2"));
 
   @Test
-  @Ignore
+  @Disabled
   public void existsTest() throws IOException {
     assertTrue(repository.exists("com.google.code.gson", "gson", "2.2.4"));
     assertTrue(repository.exists("com.google.code.gson:gson:2.2.4"));
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void retrieveArtifactJar() throws IOException {
     try (InputStream is = repository.retrieveArtifactJar("com.google.code.gson", "gson", "2.2.4")) {
       assertNotNull(is);
@@ -36,7 +36,7 @@ public class LocalMavenRepositoryTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void listArtifacts() throws IOException {
     Map<String, Map<String, List<String>>> map = repository.listArtifacts();
     System.out.println(map.size());
@@ -44,7 +44,7 @@ public class LocalMavenRepositoryTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void retrieveArtifact() throws IOException {
     PomArtifact pomArtifact = repository.retrieveArtifact("com.google.code.gson", "gson", "2.2.4");
     assertEquals("com.google.code.gson", pomArtifact.getGroupId());
