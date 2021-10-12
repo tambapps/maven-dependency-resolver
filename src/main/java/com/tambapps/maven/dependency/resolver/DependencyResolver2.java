@@ -4,6 +4,7 @@ import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
 import com.tambapps.maven.dependency.resolver.data.DependencyResolvingResult;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
+import com.tambapps.maven.dependency.resolver.data.Scope;
 import com.tambapps.maven.dependency.resolver.repository.MavenRepository;
 
 import java.io.IOException;
@@ -33,11 +34,14 @@ public class DependencyResolver2 {
     fetchedArtifacts.clear();
 
     PomArtifact pomArtifact = repository.retrieveArtifact(groupId, artifactId, version);
-    fetchedArtifacts.add(pomArtifact);
 
     for (Dependency dependency : pomArtifact.getDependencies()) {
       // here we gooooooooo
-      resolveRec(dependency, new ArrayList<>());
+      List<Dependency> dependencyPath = new ArrayList<>();
+      if (shouldSkip(dependency, dependencyPath)) {
+        continue;
+      }
+      resolveRec(dependency, dependencyPath);
     }
 
     // map groupId:artifactId -> versions
@@ -62,14 +66,20 @@ public class DependencyResolver2 {
     fetchedArtifacts.add(pomArtifact);
 
     for (Dependency artifactDependency : pomArtifact.getDependencies()) {
-      if (fetchedArtifacts.stream().anyMatch(artifactDependency::matches) ||
-          isExcluded(artifactDependency, dependencyPath)) {
+      if (shouldSkip(artifactDependency, dependencyPath)) {
         continue;
       }
       List<Dependency> childDependencyBranch = new ArrayList<>(dependencyPath);
       childDependencyBranch.add(dependency);
       resolveRec(artifactDependency, childDependencyBranch);
     }
+  }
+
+  private boolean shouldSkip(Dependency artifactDependency, List<Dependency> dependencyPath) {
+    return artifactDependency.isOptional() ||
+        artifactDependency.getScope() != Scope.COMPILE ||
+        fetchedArtifacts.stream().anyMatch(artifactDependency::matches) ||
+        isExcluded(artifactDependency, dependencyPath);
   }
 
   private boolean isExcluded(Dependency dependency, List<Dependency> dependencyBranch) {

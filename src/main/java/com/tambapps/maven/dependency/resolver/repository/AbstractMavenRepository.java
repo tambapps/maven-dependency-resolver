@@ -4,6 +4,7 @@ import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
 import com.tambapps.maven.dependency.resolver.data.Scope;
+import lombok.SneakyThrows;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,10 +31,13 @@ public abstract class AbstractMavenRepository implements MavenRepository {
 
   private final DocumentBuilderFactory dbFactory;
 
+  @SneakyThrows
   AbstractMavenRepository() {
     dbFactory = DocumentBuilderFactory.newInstance();
     // REQUIRED
     dbFactory.setIgnoringComments(true);
+    dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
   }
 
   protected PomArtifact toArtifact(InputStream pomStream) throws IOException {
