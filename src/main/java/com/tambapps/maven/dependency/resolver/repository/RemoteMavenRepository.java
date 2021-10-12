@@ -25,6 +25,10 @@ public class RemoteMavenRepository extends AbstractMavenRepository {
     this(new OkHttpClient(), repoUrl);
   }
 
+  public RemoteMavenRepository() {
+    this(new OkHttpClient(), MAVEN_REPO_URL);
+  }
+
   @Override
   public boolean exists(String groupId, String artifactId, String version) throws IOException  {
     Request request = pomRequest(groupId, artifactId, version).get().build();

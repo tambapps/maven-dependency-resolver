@@ -6,9 +6,9 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Use the higher version
+ * Use the highest version
  */
-public class HigherVersionConflictResolver extends AbstractVersionConflictResolver {
+public class HighestVersionConflictResolver extends AbstractVersionConflictResolver {
 
   @Override
   protected Artifact selectArtifact(List<Artifact> artifacts) {

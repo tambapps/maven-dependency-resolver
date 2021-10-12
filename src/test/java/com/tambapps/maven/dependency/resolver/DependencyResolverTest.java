@@ -35,4 +35,11 @@ public class DependencyResolverTest {
         resolver.resolve("com.google.code.gson", "gson", "2.8.6");
     System.out.println(resolve);
   }
+
+  @Test
+  public void fetchGroovy() throws IOException {
+    DependencyResolvingResult resolve =
+        resolver.resolve("org.codehaus.groovy", "groovy", "3.0.9");
+    System.out.println(resolve);
+  }
 }
