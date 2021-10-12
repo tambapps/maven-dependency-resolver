@@ -8,6 +8,7 @@ import lombok.SneakyThrows;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,6 +20,13 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
   // the first element of this list is the localRepository (this). This is to simplify code
   private final List<RemoteMavenRepository> remoteRepositories;
 
+  public RemoteSavingMavenRepository() {
+    this(new File(System.getProperty("user.home"), ".m2"));
+  }
+
+  public RemoteSavingMavenRepository(File root) {
+    this(root, Collections.singletonList(new RemoteMavenRepository()));
+  }
   public RemoteSavingMavenRepository(File root, List<RemoteMavenRepository> remoteRepositories) {
     super(root);
     this.remoteRepositories = remoteRepositories;

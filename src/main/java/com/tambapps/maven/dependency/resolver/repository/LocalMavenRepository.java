@@ -25,6 +25,10 @@ public class LocalMavenRepository extends AbstractMavenRepository {
   protected final File root;
   protected final File repoRoot;
 
+  public LocalMavenRepository() {
+    this(new File(System.getProperty("user.home"), ".m2"));
+  }
+
   public LocalMavenRepository(File root) {
     this.root = root;
     repoRoot = new File(root, "repository");
