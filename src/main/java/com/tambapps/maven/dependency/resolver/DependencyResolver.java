@@ -6,6 +6,7 @@ import com.tambapps.maven.dependency.resolver.data.DependencyResolvingResult;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Scope;
 import com.tambapps.maven.dependency.resolver.repository.MavenRepository;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,24 +21,26 @@ import java.util.Map;
 public class DependencyResolver {
 
   private final MavenRepository repository;
+  @Getter
   private final List<Artifact> fetchedArtifacts = new ArrayList<>();
 
   public DependencyResolver(MavenRepository repository) {
     this.repository = repository;
   }
 
-  public DependencyResolvingResult resolve(Artifact artifact) throws IOException {
-    return artifact instanceof PomArtifact ? resolve((PomArtifact) artifact) :
-        resolve(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
+  public void resolve(Artifact artifact) throws IOException {
+    if (artifact instanceof PomArtifact) {
+      resolve((PomArtifact) artifact);
+    } else {
+      resolve(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
+    }
   }
 
-  public DependencyResolvingResult resolve(String groupId, String artifactId, String version) throws IOException {
-    return resolve(repository.retrieveArtifact(groupId, artifactId, version));
+  public void resolve(String groupId, String artifactId, String version) throws IOException {
+    resolve(repository.retrieveArtifact(groupId, artifactId, version));
   }
 
-  public DependencyResolvingResult resolve(PomArtifact pomArtifact) throws IOException {
-    // reset variables in case resolve(...) has already been called
-    fetchedArtifacts.clear();
+  public void resolve(PomArtifact pomArtifact) throws IOException {
     fetchedArtifacts.add(pomArtifact);
 
     for (Dependency dependency : pomArtifact.getDependencies()) {
@@ -48,7 +51,9 @@ public class DependencyResolver {
       }
       resolveRec(dependency, dependencyPath);
     }
+  }
 
+  public DependencyResolvingResult getResults() {
     // map groupId:artifactId -> versions
     Map<String, List<Artifact>> artifactVersionsMap = new HashMap<>();
 
@@ -57,6 +62,10 @@ public class DependencyResolver {
           .add(artifact);
     }
     return new DependencyResolvingResult(fetchedArtifacts, artifactVersionsMap);
+  }
+
+  public void reset() {
+    fetchedArtifacts.clear();
   }
 
   /**
