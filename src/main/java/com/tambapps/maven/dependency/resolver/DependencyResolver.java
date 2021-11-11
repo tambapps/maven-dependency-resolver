@@ -7,12 +7,15 @@ import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Scope;
 import com.tambapps.maven.dependency.resolver.repository.MavenRepository;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class allowing to fetch an artifact along with its transitive dependencies.
@@ -23,6 +26,9 @@ public class DependencyResolver {
   private final MavenRepository repository;
   @Getter
   private final List<Artifact> fetchedArtifacts = new ArrayList<>();
+  @Getter
+  @Setter
+  private Set<Artifact> excludedArtifacts = Collections.emptySet();
 
   public DependencyResolver(MavenRepository repository) {
     this.repository = repository;
@@ -93,7 +99,8 @@ public class DependencyResolver {
     return artifactDependency.isOptional() ||
         artifactDependency.getScope() != Scope.COMPILE ||
         fetchedArtifacts.stream().anyMatch(artifactDependency::matches) ||
-        isExcluded(artifactDependency, dependencyPath);
+        isExcluded(artifactDependency, dependencyPath) ||
+        excludedArtifacts.stream().anyMatch(a -> a.matches(artifactDependency));
   }
 
   private boolean isExcluded(Dependency dependency, List<Dependency> dependencyBranch) {
