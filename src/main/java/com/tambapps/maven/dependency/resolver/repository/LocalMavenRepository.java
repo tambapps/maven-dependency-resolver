@@ -104,10 +104,21 @@ public class LocalMavenRepository extends AbstractMavenRepository {
 
   public File getJarFile(Artifact a) {
     File jarFile = new File(repoRoot, getJarKey(a.getGroupId(), a.getArtifactId(), a.getVersion()));
-    if (!jarFile.exists()) {
+    if (!jarFile.getParentFile().exists()) {
       throw new ArtifactNotFoundException(a.getGroupId(), a.getArtifactId(), a.getVersion());
+    } else if (!jarFile.exists()) {
+      // it's a pom artifact, with no jar
+      return null;
     }
     return jarFile;
+  }
+
+  public File getPomFile(Artifact a) {
+    File pomFile = new File(repoRoot, getPomKey(a.getGroupId(), a.getArtifactId(), a.getVersion()));
+    if (!pomFile.exists()) {
+      throw new ArtifactNotFoundException(a.getGroupId(), a.getArtifactId(), a.getVersion());
+    }
+    return pomFile;
   }
 
   public File getSettingsFile() {
@@ -162,8 +173,8 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     return new Artifact(groupId, artifactId, version);
   }
 
-  public void saveArtifactJar(PomArtifact pomArtifact, InputStream inputStream) throws IOException {
-    saveArtifactJar(pomArtifact.getGroupId(), pomArtifact.getArtifactId(), pomArtifact.getVersion(), inputStream);
+  public void saveArtifactJar(Artifact artifact, InputStream inputStream) throws IOException {
+    saveArtifactJar(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), inputStream);
   }
 
   public void saveArtifactJar(String groupId, String artifactId, String version, InputStream inputStream) throws IOException {
@@ -173,9 +184,10 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     }
     Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
   }
-  public void saveArtifactPom(PomArtifact pomArtifact, InputStream inputStream) throws IOException {
-    saveArtifactPom(pomArtifact.getGroupId(), pomArtifact.getArtifactId(), pomArtifact.getVersion(), inputStream);
+  public void saveArtifactPom(Artifact artifact, InputStream inputStream) throws IOException {
+    saveArtifactPom(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), inputStream);
   }
+
   public void saveArtifactPom(String groupId, String artifactId, String version, InputStream inputStream) throws IOException {
     File file = new File(repoRoot, getPomKey(groupId, artifactId, version));
     if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
