@@ -47,8 +47,8 @@ public class DependencyResolver {
   }
 
   public void resolve(PomArtifact pomArtifact) throws IOException {
+    addParentPoms(pomArtifact);
     fetchedArtifacts.add(pomArtifact);
-
     for (Dependency dependency : pomArtifact.getDependencies()) {
       // here we gooooooooo
       List<Dependency> dependencyPath = new ArrayList<>();
@@ -83,6 +83,7 @@ public class DependencyResolver {
    */
   private void resolveRec(Dependency dependency, List<Dependency> dependencyPath) throws IOException {
     PomArtifact pomArtifact = repository.retrieveArtifact(dependency);
+    addParentPoms(pomArtifact);
     fetchedArtifacts.add(pomArtifact);
 
     for (Dependency artifactDependency : pomArtifact.getDependencies()) {
@@ -92,6 +93,14 @@ public class DependencyResolver {
       List<Dependency> childDependencyBranch = new ArrayList<>(dependencyPath);
       childDependencyBranch.add(dependency);
       resolveRec(artifactDependency, childDependencyBranch);
+    }
+  }
+
+  private void addParentPoms(PomArtifact pomArtifact) {
+    PomArtifact parent = pomArtifact.getParent();
+    while (parent != null) {
+      fetchedArtifacts.add(parent);
+      parent = parent.getParent();
     }
   }
 
