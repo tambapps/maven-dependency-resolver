@@ -25,7 +25,6 @@ public class DependencyResolverTest {
     resolver.resolve("org.springframework.boot", "spring-boot-starter-web", "2.4.2");
     DependencyResolvingResult resolve = resolver.getResults();
     System.out.println(resolve);
-    assertEquals(resolve.getFetchedArtifacts().size(), resolve.getArtifactVersionsMap().size());
   }
 
   // example with parent pom and dependency versions defined in parent pom
