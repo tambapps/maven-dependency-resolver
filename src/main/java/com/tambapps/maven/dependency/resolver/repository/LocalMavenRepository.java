@@ -182,8 +182,14 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
       throw new IOException("Couldn't create directory " + file.getParent());
     }
+    doSaveArtifactJar(groupId, artifactId, version, file, inputStream);
+  }
+
+  // overridable
+  protected void doSaveArtifactJar(String groupId, String artifactId, String version, File file, InputStream inputStream) throws IOException {
     Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
   }
+
   public void saveArtifactPom(Artifact artifact, InputStream inputStream) throws IOException {
     saveArtifactPom(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), inputStream);
   }

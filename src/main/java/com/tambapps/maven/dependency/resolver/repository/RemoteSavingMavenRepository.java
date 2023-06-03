@@ -62,14 +62,24 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
     } catch (ArtifactNotFoundException e) {
       for (RemoteMavenRepository remoteRepository : remoteRepositories) {
         try {
-          saveArtifactPom(groupId, artifactId, version, remoteRepository.retrieveArtifactPom(groupId, artifactId, version));
-          // jar may not exists, so let's not try to save it in this case
-          break;
+          saveRemoteArtifact(remoteRepository, groupId, artifactId, version);
+          return super.retrieveArtifact(groupId, artifactId, version);
         } catch (ArtifactNotFoundException e1) {
           // just try with the next repository
         }
       }
-      return super.retrieveArtifact(groupId, artifactId, version);
+      throw e;
+    }
+  }
+
+  private void saveRemoteArtifact(RemoteMavenRepository remoteRepository, String groupId, String artifactId, String version) throws IOException {
+    try (InputStream is = remoteRepository.retrieveArtifactPom(groupId, artifactId, version)) {
+      saveArtifactPom(groupId, artifactId, version, is);
+    }
+    try (InputStream is = remoteRepository.retrieveArtifactJar(groupId, artifactId, version)) {
+      saveArtifactJar(groupId, artifactId, version, is);
+    } catch (ArtifactNotFoundException e) {
+      // ignore. Some artifacts don't have JARs
     }
   }
 
@@ -109,22 +119,4 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
     }
   }
 
-  @SneakyThrows
-  @Override
-  public File getJarFile(Artifact a) {
-    try {
-      return super.getJarFile(a);
-    } catch (ArtifactNotFoundException e) {
-      for (RemoteMavenRepository remoteRepository : remoteRepositories) {
-        try {
-          saveArtifactJar(a.getGroupId(), a.getArtifactId(), a.getVersion(),
-              remoteRepository.retrieveArtifactJar(a.getGroupId(), a.getArtifactId(), a.getVersion()));
-          break;
-        } catch (ArtifactNotFoundException e1) {
-          // just try with the next repository
-        }
-      }
-    }
-    return super.getJarFile(a);
-  }
 }

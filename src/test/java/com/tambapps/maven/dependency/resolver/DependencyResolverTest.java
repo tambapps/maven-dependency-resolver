@@ -40,6 +40,7 @@ public class DependencyResolverTest {
     resolver.resolve("com.google.code.gson", "gson", "2.8.6");
     DependencyResolvingResult resolve = resolver.getResults();
     System.out.println(resolve);
+    System.out.println(resolve.getFetchedArtifacts().size());
   }
 
   @Test

@@ -39,8 +39,11 @@ public class PomParser {
     dbFactory = DocumentBuilderFactory.newInstance();
     // REQUIRED
     dbFactory.setIgnoringComments(true);
-    dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-
+    try {
+      dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+    } catch (ParserConfigurationException e) {
+      // the feature isn't supported. Ok, just proceed
+    }
   }
 
   public PomArtifact parse(InputStream pomStream) throws IOException {
