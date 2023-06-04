@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +80,9 @@ public class LocalMavenRepository extends AbstractMavenRepository {
   }
 
   public List<Artifact> getAllArtifacts() throws IOException {
+    if (!repoRoot.exists()) {
+      return Collections.emptyList();
+    }
     return Files.walk(repoRoot.toPath()).filter(this::repoPomFile)
         .map(this::toArtifact)
         .collect(Collectors.toList());
@@ -86,6 +90,9 @@ public class LocalMavenRepository extends AbstractMavenRepository {
 
   // groupId -> artifactId -> List<Artifact>
   public Map<String, Map<String, List<String>>> listArtifacts() throws IOException {
+    if (!repoRoot.exists()) {
+      return Collections.emptyMap();
+    }
     Map<String, Map<String, List<String>>> map = new HashMap<>();
     Files.walk(repoRoot.toPath()).filter(this::repoPomFile)
         .map(this::toArtifact)
@@ -129,22 +136,6 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     return new File(root, "settings-security.xml");
   }
 
-  public boolean deleteArtifact(Artifact a) {
-    File artifactDir = new File(repoRoot, getPomKey(a.getGroupId(), a.getArtifactId(), a.getVersion())).getParentFile();
-    File[] children = artifactDir.listFiles();
-    return (children == null || deleteRecursively(children)) && artifactDir.delete();
-  }
-
-  private boolean deleteRecursively(File[] files) {
-    boolean b = true;
-    for (File file : files) {
-      if (file.isDirectory()) {
-        b = b && deleteRecursively(file.listFiles());
-      }
-      b = b && file.delete();
-    }
-    return b;
-  }
   private boolean repoPomFile(Path path) {
     String pathString = path.toAbsolutePath().toString();
     if (!Files.isRegularFile(path) || !pathString.endsWith(POM_SUFFIX)) {
@@ -200,5 +191,35 @@ public class LocalMavenRepository extends AbstractMavenRepository {
       throw new IOException("Couldn't create directory " + file.getParent());
     }
     Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+  }
+
+  public void deleteAllArtifacts() {
+    File[] files = repoRoot.listFiles();
+    if (files == null) return;
+    for (File file : files) {
+      if (file.isDirectory()) deleteDirectory(file);
+      else file.delete();
+    }
+  }
+
+    public boolean deleteArtifact(Artifact artifact) {
+    return deleteArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
+  }
+
+  public boolean deleteArtifact(String groupId, String artifactId, String version) {
+    File file = new File(repoRoot, getPomKey(groupId, artifactId, version));
+    if (!file.exists()) return false;
+    if (file.getParentFile() == null) return false;
+    return deleteDirectory(file.getParentFile());
+  }
+
+  private boolean deleteDirectory(File directoryToBeDeleted) {
+    File[] allContents = directoryToBeDeleted.listFiles();
+    if (allContents != null) {
+      for (File file : allContents) {
+        deleteDirectory(file);
+      }
+    }
+    return directoryToBeDeleted.delete();
   }
 }
