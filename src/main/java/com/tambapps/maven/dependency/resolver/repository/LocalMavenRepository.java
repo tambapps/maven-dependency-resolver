@@ -1,13 +1,10 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
-import static com.tambapps.maven.dependency.resolver.data.Artifact.extractFields;
-
 import com.tambapps.maven.dependency.resolver.data.Artifact;
-import com.tambapps.maven.dependency.resolver.data.PomArtifact;
-import com.tambapps.maven.dependency.resolver.exceptions.ArtifactNotFoundException;
+import com.tambapps.maven.dependency.resolver.exception.ArtifactNotFoundException;
+import com.tambapps.maven.dependency.resolver.storage.LocalRepositoryStorage;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -21,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class LocalMavenRepository extends AbstractMavenRepository {
+public class LocalMavenRepository extends MavenRepository {
 
   protected final File root;
   protected final File repoRoot;
@@ -31,52 +28,9 @@ public class LocalMavenRepository extends AbstractMavenRepository {
   }
 
   public LocalMavenRepository(File root) {
+    super(new LocalRepositoryStorage(new File(root, "repository")));
     this.root = root;
     repoRoot = new File(root, "repository");
-  }
-
-  // overridden to remove throws IOException
-  @Override
-  public boolean exists(String dependencyString) {
-    String[] fields = extractFields(dependencyString);
-    return exists(fields[0], fields[1], fields[2]);
-  }
-
-  @Override
-  public boolean exists(String groupId, String artifactId, String version) {
-    return new File(repoRoot, getPomKey(groupId, artifactId, version)).exists();
-  }
-
-  @Override
-  public InputStream retrieveArtifactJar(String groupId, String artifactId, String version)
-      throws IOException {
-    File file = new File(repoRoot, getJarKey(groupId, artifactId, version));
-    if (!file.exists()) {
-      throw new ArtifactNotFoundException(groupId, artifactId, version);
-    }
-    return new FileInputStream(file);
-  }
-
-  @Override
-  public InputStream retrieveArtifactPom(String groupId, String artifactId, String version)
-      throws IOException {
-    File file = new File(repoRoot, getPomKey(groupId, artifactId, version));
-    if (!file.exists()) {
-      throw new ArtifactNotFoundException(groupId, artifactId, version);
-    }
-    return new FileInputStream(file);
-  }
-
-  @Override
-  public PomArtifact retrieveArtifact(String groupId, String artifactId, String version)
-      throws IOException {
-    File file = new File(repoRoot, getPomKey(groupId, artifactId, version));
-    if (!file.exists()) {
-      throw new ArtifactNotFoundException(groupId, artifactId, version);
-    }
-    try (InputStream inputStream = new FileInputStream(file)) {
-      return toArtifact(inputStream);
-    }
   }
 
   public List<Artifact> getAllArtifacts() throws IOException {
@@ -202,7 +156,7 @@ public class LocalMavenRepository extends AbstractMavenRepository {
     }
   }
 
-    public boolean deleteArtifact(Artifact artifact) {
+  public boolean deleteArtifact(Artifact artifact) {
     return deleteArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
   }
 

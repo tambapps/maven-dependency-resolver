@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.tambapps.maven.dependency.resolver.data.DependencyResolvingResult;
 import com.tambapps.maven.dependency.resolver.repository.MavenRepository;
-import com.tambapps.maven.dependency.resolver.repository.RemoteMavenRepository;
+import com.tambapps.maven.dependency.resolver.storage.RemoteStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class DependencyResolverTest {
 
-  private final MavenRepository repository = new RemoteMavenRepository(RemoteMavenRepository.MAVEN_REPO_URL);
+  private final MavenRepository repository = new MavenRepository(new RemoteStorage());
   private final DependencyResolver resolver = new DependencyResolver(repository);
 
   @AfterEach

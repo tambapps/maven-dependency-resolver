@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.data.Dependency;
 
+import com.tambapps.maven.dependency.resolver.storage.RemoteStorage;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.io.InputStream;
 
 public class RemoteMavenRepositoryTest {
 
-  private final RemoteMavenRepository repository = new RemoteMavenRepository(RemoteMavenRepository.MAVEN_REPO_URL);
+  private final MavenRepository repository = new MavenRepository(new RemoteStorage());
 
   @Test
   public void existsTest() throws IOException {
@@ -52,7 +53,7 @@ public class RemoteMavenRepositoryTest {
 
   @Test
   public void testJitPack() throws IOException {
-    final RemoteMavenRepository repository = new RemoteMavenRepository("https://jitpack.io");
+    final MavenRepository repository = new MavenRepository(new RemoteStorage("https://jitpack.io"));
     assertTrue(repository.exists("com.github.tambapps", "hyperpoet", "v1.0.0"));
     PomArtifact pomArtifact = repository.retrieveArtifact("com.github.tambapps", "hyperpoet", "v1.0.0");
     System.out.println(pomArtifact);

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.tambapps.maven.dependency.resolver.data.Artifact;
+import com.tambapps.maven.dependency.resolver.storage.RemoteStorage;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -17,7 +18,7 @@ public class RemoteSavingMavenRepositoryTest {
       new LocalMavenRepository(new File(new File(System.getProperty("user.home")), ".m2"));
   private final RemoteSavingMavenRepository repository = new RemoteSavingMavenRepository(
       localRepository.root,
-      Arrays.asList(new RemoteMavenRepository(RemoteMavenRepository.MAVEN_REPO_URL))
+      Arrays.asList(new MavenRepository(new RemoteStorage()))
   );
 
   @Test

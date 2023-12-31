@@ -1,4 +1,4 @@
-package com.tambapps.maven.dependency.resolver.exceptions;
+package com.tambapps.maven.dependency.resolver.exception;
 
 public class ArtifactNotFoundException extends RuntimeException {
 

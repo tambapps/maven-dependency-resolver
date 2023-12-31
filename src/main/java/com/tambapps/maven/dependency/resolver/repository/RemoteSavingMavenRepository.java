@@ -1,8 +1,8 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
-import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
-import com.tambapps.maven.dependency.resolver.exceptions.ArtifactNotFoundException;
+import com.tambapps.maven.dependency.resolver.exception.ArtifactNotFoundException;
+import com.tambapps.maven.dependency.resolver.storage.RepositoryStorage;
 import lombok.SneakyThrows;
 
 import java.io.File;
@@ -18,16 +18,16 @@ import java.util.List;
 public class RemoteSavingMavenRepository extends LocalMavenRepository {
 
   // the first element of this list is the localRepository (this). This is to simplify code
-  private final List<RemoteMavenRepository> remoteRepositories;
+  private final List<MavenRepository> remoteRepositories;
 
-  public RemoteSavingMavenRepository() {
-    this(new File(System.getProperty("user.home"), ".m2"));
+  public RemoteSavingMavenRepository(RepositoryStorage remoteStorage) {
+    this(new File(System.getProperty("user.home"), ".m2"), remoteStorage);
   }
 
-  public RemoteSavingMavenRepository(File root) {
-    this(root, Collections.singletonList(new RemoteMavenRepository()));
+  public RemoteSavingMavenRepository(File root, RepositoryStorage remoteStorage) {
+    this(root, Collections.singletonList(new MavenRepository(remoteStorage)));
   }
-  public RemoteSavingMavenRepository(File root, List<RemoteMavenRepository> remoteRepositories) {
+  public RemoteSavingMavenRepository(File root, List<MavenRepository> remoteRepositories) {
     super(root);
     this.remoteRepositories = remoteRepositories;
   }
@@ -46,11 +46,11 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
     return false;
   }
 
-  public boolean existsLocally(String dependencyString) {
+  public boolean existsLocally(String dependencyString) throws IOException {
     return super.exists(dependencyString);
   }
 
-  public boolean existsLocally(String groupId, String artifactId, String version) {
+  public boolean existsLocally(String groupId, String artifactId, String version) throws IOException {
     return super.exists(groupId, artifactId, version);
   }
 
@@ -60,7 +60,7 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
     try {
       return super.retrieveArtifact(groupId, artifactId, version);
     } catch (ArtifactNotFoundException e) {
-      for (RemoteMavenRepository remoteRepository : remoteRepositories) {
+      for (MavenRepository remoteRepository : remoteRepositories) {
         try {
           saveRemoteArtifact(remoteRepository, groupId, artifactId, version);
           return super.retrieveArtifact(groupId, artifactId, version);
@@ -72,7 +72,7 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
     }
   }
 
-  private void saveRemoteArtifact(RemoteMavenRepository remoteRepository, String groupId, String artifactId, String version) throws IOException {
+  private void saveRemoteArtifact(MavenRepository remoteRepository, String groupId, String artifactId, String version) throws IOException {
     try (InputStream is = remoteRepository.retrieveArtifactPom(groupId, artifactId, version)) {
       saveArtifactPom(groupId, artifactId, version, is);
     }
@@ -89,7 +89,7 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
     try {
       return super.retrieveArtifactPom(groupId, artifactId, version);
     } catch (ArtifactNotFoundException e) {
-      for (RemoteMavenRepository remoteRepository : remoteRepositories) {
+      for (MavenRepository remoteRepository : remoteRepositories) {
         try {
           saveArtifactPom(groupId, artifactId, version, remoteRepository.retrieveArtifactPom(groupId, artifactId, version));
           break;
@@ -107,7 +107,7 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
     try {
       return super.retrieveArtifactJar(groupId, artifactId, version);
     } catch (ArtifactNotFoundException e) {
-      for (RemoteMavenRepository remoteRepository : remoteRepositories) {
+      for (MavenRepository remoteRepository : remoteRepositories) {
         try {
           saveArtifactJar(groupId, artifactId, version, remoteRepository.retrieveArtifactJar(groupId, artifactId, version));
           break;
