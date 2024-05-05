@@ -91,7 +91,7 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
     } catch (ArtifactNotFoundException e) {
       for (MavenRepository remoteRepository : remoteRepositories) {
         try {
-          saveArtifactPom(groupId, artifactId, version, remoteRepository.retrieveArtifactPom(groupId, artifactId, version));
+          saveRemoteArtifact(remoteRepository, groupId, artifactId, version);
           break;
         } catch (ArtifactNotFoundException e1) {
           // just try with the next repository
@@ -109,7 +109,7 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
     } catch (ArtifactNotFoundException e) {
       for (MavenRepository remoteRepository : remoteRepositories) {
         try {
-          saveArtifactJar(groupId, artifactId, version, remoteRepository.retrieveArtifactJar(groupId, artifactId, version));
+          saveRemoteArtifact(remoteRepository, groupId, artifactId, version);
           break;
         } catch (ArtifactNotFoundException e1) {
           // just try with the next repository
