@@ -1,5 +1,6 @@
 package com.tambapps.maven.dependency.resolver.repository;
 
+import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.data.PomArtifact;
 import com.tambapps.maven.dependency.resolver.exception.ArtifactNotFoundException;
 import com.tambapps.maven.dependency.resolver.storage.RepositoryStorage;
@@ -47,11 +48,16 @@ public class RemoteSavingMavenRepository extends LocalMavenRepository {
   }
 
   public boolean existsLocally(String dependencyString) throws IOException {
-    return super.exists(dependencyString);
+    String[] fields = Artifact.extractFields(dependencyString);
+    return repositoryStorage.exists(getPomKey(fields[0], fields[1], fields[2]));
   }
 
   public boolean existsLocally(String groupId, String artifactId, String version) throws IOException {
-    return super.exists(groupId, artifactId, version);
+    return repositoryStorage.exists(getPomKey(groupId, artifactId, version));
+  }
+
+  public boolean existsLocally(Artifact artifact) throws IOException {
+    return repositoryStorage.exists(getPomKey(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion()));
   }
 
   @Override

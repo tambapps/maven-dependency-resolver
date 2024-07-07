@@ -11,33 +11,44 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class RemoteSavingMavenRepositoryTest {
 
-  private final LocalMavenRepository localRepository =
-      new LocalMavenRepository(new File(new File(System.getProperty("user.home")), ".m2"));
+  private static final Artifact ARTIFACT = new Artifact("com.google.code.gson", "gson", "2.2.4");
   private final RemoteSavingMavenRepository repository = new RemoteSavingMavenRepository(
-      localRepository.root,
-      Arrays.asList(new MavenRepository(new RemoteStorage()))
+      new File(new File(System.getProperty("user.home")), ".m2"),
+      Collections.singletonList(new MavenRepository(new RemoteStorage()))
   );
 
   @Test
   public void testGsonExists() throws IOException {
-    localRepository.deleteArtifact(new Artifact("com.google.code.gson", "gson", "2.2.4"));
-    assertFalse(localRepository.exists("com.google.code.gson:gson:2.2.4"));
-    assertTrue(repository.exists("com.google.code.gson:gson:2.2.4"));
+    repository.deleteArtifact(ARTIFACT);
+    assertTrue(repository.exists(ARTIFACT.toArtifactString()));
+  }
+
+  @Test
+  public void testExistsLocally() throws IOException {
+    repository.deleteArtifact(ARTIFACT);
+    assertFalse(repository.existsLocally(ARTIFACT.toArtifactString()));
+    assertFalse(repository.existsLocally(ARTIFACT.getGroupId(), ARTIFACT.getArtifactId(), ARTIFACT.getVersion()));
+    assertFalse(repository.existsLocally(ARTIFACT));
+
+    repository.retrieveArtifact(ARTIFACT);
+    assertTrue(repository.existsLocally(ARTIFACT.toArtifactString()));
+    assertTrue(repository.existsLocally(ARTIFACT.getGroupId(), ARTIFACT.getArtifactId(), ARTIFACT.getVersion()));
+    assertTrue(repository.existsLocally(ARTIFACT));
   }
 
 
   @Test
   public void testGetGson() throws IOException {
-    localRepository.deleteArtifact(new Artifact("com.google.code.gson", "gson", "2.2.4"));
+    repository.deleteArtifact(ARTIFACT);
 
-    Artifact artifact = repository.retrieveArtifact("com.google.code.gson", "gson", "2.2.4");
+    Artifact artifact = repository.retrieveArtifact(ARTIFACT);
 
     assertEquals("com.google.code.gson", artifact.getGroupId());
     assertEquals("gson", artifact.getArtifactId());
     assertEquals("2.2.4", artifact.getVersion());
-    assertTrue(localRepository.exists("com.google.code.gson:gson:2.2.4"));
   }
 }

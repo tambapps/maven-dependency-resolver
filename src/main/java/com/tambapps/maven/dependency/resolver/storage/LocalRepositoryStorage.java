@@ -14,7 +14,7 @@ public class LocalRepositoryStorage implements RepositoryStorage {
   protected final File repoRoot;
 
   @Override
-  public boolean exists(String resourcePath) throws IOException {
+  public boolean exists(String resourcePath) {
     return new File(repoRoot, resourcePath).exists();
   }
 
